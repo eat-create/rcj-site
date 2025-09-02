@@ -16,6 +16,7 @@
     body{margin:0;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; background:var(--bg); color:var(--text);}
     a{color:var(--text);text-decoration:none}
     button{font:inherit}
+
     .container{max-width:1200px;margin:0 auto;padding:1.25rem}
     .navbar{position:sticky;top:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;
       background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
@@ -27,25 +28,34 @@
       background:var(--indigo);color:#fff;cursor:pointer;transition:transform .06s ease, background .2s ease}
     .btn:active{transform:translateY(1px)}
     .btn-ghost{background:transparent;border:1px solid var(--border);color:#fff}
+
     .hero{position:relative;aspect-ratio:21/9;border:1px solid var(--border);border-radius:12px;overflow:hidden}
     .hero-gradient{position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.7), transparent 60%)}
     .hero-inner{position:absolute;inset:0;display:grid;place-items:end;padding:2rem}
     .hero h1{font-size:2rem;margin:0 0 .35rem 0}
+
     .row{margin-top:1rem}
     .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}
     .pitem{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:.75rem;display:flex;flex-direction:column;gap:.4rem}
     .price{font-weight:600}
+
+    /* Cart drawer */
     .drawer{position:fixed;right:0;top:0;height:100dvh;width:min(420px,100%);background:#0b0d14;border-left:1px solid var(--border);
       transform:translateX(100%);transition:transform .25s ease;z-index:40;display:flex;flex-direction:column}
     .drawer.open{transform:translateX(0)}
     .drawer header{display:flex;align-items:center;justify-content:space-between;padding:1rem;border-bottom:1px solid var(--border)}
     .drawer main{flex:1;overflow:auto;padding:1rem}
     .drawer footer{padding:1rem;border-top:1px solid var(--border)}
-    .transition{pointer-events:none;position:fixed;inset:0;z-index:60;opacity:0;transition:opacity .15s ease}
-    .transition.active{opacity:1}
+
+    /* Transition overlay (non-blocking) */
+    .transition{pointer-events:none;position:fixed;inset:0;z-index:40;opacity:0;transition:opacity .18s ease}
+    #smokefx{width:100%;height:100%;display:block}
+
     #bgfx{position:fixed;inset:0;z-index:-1;opacity:.9}
     .input{background:transparent;border:1px solid var(--border);border-radius:.5rem;padding:.45rem .6rem;color:#fff}
-    .badge{display:none} /* hide unwanted labels */
+
+    /* hide unwanted labels */
+    .badge{display:none}
 
     /* Mobile polish */
     @media (max-width: 640px){
@@ -55,12 +65,14 @@
       .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
       .nav-right{display:none}
     }
-    @media (prefers-reduced-motion: reduce){ .plume{animation:none;display:none} }
+    @media (prefers-reduced-motion: reduce){ .transition{transition:none} }
   </style>
 </head>
 <body>
+  <!-- starfield canvas -->
   <canvas id="bgfx" aria-hidden="true"></canvas>
 
+  <!-- navbar -->
   <div class="navbar" role="navigation">
     <div class="nav-left">
       <a class="brand" href="#" data-route="home">🚀 Rocket City Jerky</a>
@@ -68,8 +80,7 @@
       <a class="nav-link" href="#shop" data-route="shop">Shop</a>
     </div>
     <div class="nav-right" style="display:flex;align-items:center;gap:.5rem">
-      <input class="input" id="search" placeholder="Search…" aria-label="Search"/>
-      <button class="btn-ghost btn" id="cartBtn" aria-haspopup="dialog" aria-controls="cartDrawer">Cart <span id="cartCount" class="badge" aria-live="polite">0</span></button>
+      <button class="btn-ghost btn" id="cartBtn" aria-haspopup="dialog" aria-controls="cartDrawer">Cart <span id="cartCount" class="badge">0</span></button>
     </div>
   </div>
 
@@ -79,8 +90,8 @@
       <h2 style="margin:0 0 .5rem 0; font-size:1.25rem;">Our Mission</h2>
       <p style="color:var(--muted);max-width:70ch">
         At <strong>Rocket City Jerky</strong>, we fuse space-city grit with small-batch craft.
-        Every bag fuels adventure—on the job, on the road, or under a sky full of stars.
-        Flavors from mild orbit to supernova burn.
+        Every bag fuels adventure—at work, on the road, or under a sky full of stars.
+        Flavors range from low-orbit mild to supernova heat.
       </p>
     </section>
 
@@ -106,7 +117,7 @@
       </div>
 
       <!-- Search + Sort -->
-      <div style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0 1rem">
+      <div id="filter-row" style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0 1rem">
         <input class="input" id="shop-search" placeholder="Search flavors…" aria-label="Search products" />
         <select class="input" id="shop-sort" aria-label="Sort">
           <option value="popular">Sort: Popular</option>
@@ -132,25 +143,27 @@
     <footer>
       <div style="display:flex;align-items:center;justify-content:space-between">
         <strong>Total: $<span id="cartTotal">0.00</span></strong>
-        <button class="btn" id="checkoutBtn" title="Simulated checkout">Checkout</button>
+        <button class="btn" id="checkoutBtn">Checkout</button>
       </div>
-      <p class="muted" style="color:var(--muted);margin:.5rem 0 0">Payments: Add Stripe Payment Links in script to enable checkout.</p>
+      <p class="muted" style="color:var(--muted);margin:.5rem 0 0">
+        Payments: add Stripe Payment Links in the script to enable checkout.
+      </p>
     </footer>
   </aside>
 
-  <!-- Transition overlay -->
+  <!-- Transition overlay (smoke canvas) -->
   <div class="transition" id="transition">
     <canvas id="smokefx" width="0" height="0"></canvas>
   </div>
 
-  <!-- Catalog + Cart + Missions + Hero rotation -->
+  <!-- App: catalog + cart + missions + hero -->
   <script>
   (function(){
-    /* Stripe Payment Links (optional) */
+    /* Optional: Stripe Payment Links (set URLs to enable checkout) */
     const PAYMENT_LINKS = { m1:"", m2:"", m3:"", m4:"", m5:"" };
-    const PRICE_PER_PACK = 13.99;
+    const PRICE_PER_PACK = 13.99; // used for mission bundle price in cart
 
-    /* Products */
+    /* Catalog data */
     const PRODUCTS = [
       /* Space Craft */
       { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)", price:12.99, cat:"Space Craft", heat:"mild",    popular:95 },
@@ -162,13 +175,13 @@
       { id:"sc-ml-8",   title:"Meteor Lime (8oz)",                  price:13.99, cat:"Space Craft", heat:"medium",  popular:70 },
       { id:"sc-aa-8",   title:"Andromeda Applewood (8oz)",          price:15.99, cat:"Space Craft", heat:"mild",    popular:68 },
 
-      /* Galaxies */
+      /* Galaxies (mild) */
       { id:"gal-mh-12", title:"Mango Habanero (12oz)",              price:16.99, cat:"Galaxies",    heat:"mild",    popular:98 },
       { id:"gal-ao-8",  title:"Astro Original (8oz)",               price:12.99, cat:"Galaxies",    heat:"mild",    popular:88 },
       { id:"gal-ss-8",  title:"Saturn Smoke (8oz)",                 price:14.99, cat:"Galaxies",    heat:"mild",    popular:76 },
       { id:"gal-ll-8",  title:"Lunar Lemon (8oz)",                  price:13.99, cat:"Galaxies",    heat:"mild",    popular:74 },
 
-      /* Stars */
+      /* Stars (intense) */
       { id:"st-bhh-8",  title:"Black Hole Hot (8oz)",               price:15.99, cat:"Stars",       heat:"intense", popular:97 },
       { id:"st-ij-8",   title:"Ion Jalapeño (8oz)",                 price:13.99, cat:"Stars",       heat:"intense", popular:84 },
       { id:"st-ccp-8",  title:"Comet Chipotle (8oz)",               price:14.99, cat:"Stars",       heat:"intense", popular:83 },
@@ -196,6 +209,7 @@
     const tabs  = document.getElementById("cat-tabs");
     const searchInput = document.getElementById("shop-search");
     const sortSel = document.getElementById("shop-sort");
+    const filterRow = document.getElementById("filter-row");
     const PAGE_SIZE = 8;
 
     /* Router */
@@ -219,6 +233,7 @@
     }
     window.addEventListener("popstate", render);
 
+    /* Catalog */
     function applyFilters(items, st){
       let out = items.slice();
       if (st.cat && st.cat !== "Mission Patches") out = out.filter(p => p.cat === st.cat);
@@ -231,7 +246,6 @@
       }
       return out;
     }
-
     function renderGrid(items){
       grid.innerHTML = items.map(p => `
         <div class="pitem" data-id="${p.id}">
@@ -242,7 +256,6 @@
         </div>
       `).join("");
     }
-
     function renderPager(total, st){
       const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
       const cur = Math.min(st.page, pages);
@@ -253,8 +266,8 @@
       html += mk("‹", Math.max(1, cur-1), cur===1);
       for (let i=1;i<=pages;i++){
         const show = (i<=2) || (i>pages-2) || (Math.abs(i-cur)<=1);
-        if (i===3 && cur>4) { html += `<span class="badge">…</span>`; continue; }
-        if (i===pages-2 && cur<pages-3) { html += `<span class="badge">…</span>`; continue; }
+        if (i===3 && cur>4) { html += `<span style="opacity:.6">…</span>`; continue; }
+        if (i===pages-2 && cur<pages-3) { html += `<span style="opacity:.6">…</span>`; continue; }
         if (show) html += mk(String(i), i, false, i===cur);
       }
       html += mk("›", Math.min(pages, cur+1), cur===pages);
@@ -262,11 +275,15 @@
       pager.innerHTML = html;
     }
 
+    /* Missions */
+    function ensureBundleProduct(id, title, price){
+      if (!PRODUCTS.find(p=>p.id===id)){
+        PRODUCTS.push({ id, title, price, cat:"Mission Patches", heat:"", popular:50 });
+      }
+    }
     function renderMissions(){
       pager.style.display = "none";
-      const row = document.getElementById("shop-search")?.parentElement;
-      if (row) row.style.display = "none";
-
+      if (filterRow) filterRow.style.display = "none";
       grid.innerHTML = MISSIONS.map(m => `
         <div class="pitem" data-mission="${m.id}">
           <div style="height:130px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">
@@ -287,66 +304,61 @@
         </div>
       `).join("");
 
-      grid.addEventListener("click", (e)=>{
-        const go = e.target.closest("button[data-cta]");
-        if (!go) return;
-        const id = go.getAttribute("data-cta");
-        const link = PAYMENT_LINKS[id];
-        if (link) { location.href = link; return; }
-        const m = MISSIONS.find(x=>x.id===id);
-        if (m) alert(`${m.title}\n\nRequirement: ${m.packs} packs\nReward: ${m.reward}\n\n(Connect a Stripe Payment Link in PAYMENT_LINKS to enable checkout.)`);
-      });
-
-      grid.addEventListener("click", (e)=>{
-        const add = e.target.closest("button[data-cta-cart]");
-        if (!add) return;
-        const id = add.getAttribute("data-cta-cart");
-        const m  = MISSIONS.find(x=>x.id===id);
-        if (!m) return;
-        const pseudoId = `bundle-${id}`;
-        ensureBundleProduct(pseudoId, `${m.title} (${m.packs} packs)`, m.packs * PRICE_PER_PACK);
-        addToCart(pseudoId);
-        triggerSmoke && triggerSmoke();
-      });
+      grid.onclick = (e)=>{
+        const join = e.target.closest("button[data-cta]");
+        const add  = e.target.closest("button[data-cta-cart]");
+        if (join){
+          const id = join.getAttribute("data-cta");
+          const link = PAYMENT_LINKS[id];
+          if (link){ location.href = link; return; }
+          const m = MISSIONS.find(x=>x.id===id);
+          if (m) alert(`${m.title}\n\nRequirement: ${m.packs} packs\nReward: ${m.reward}\n\n(Add your Stripe Payment Link in the script to enable direct checkout.)`);
+        }
+        if (add){
+          const id = add.getAttribute("data-cta-cart");
+          const m  = MISSIONS.find(x=>x.id===id);
+          if (!m) return;
+          const pseudoId = `bundle-${id}`;
+          ensureBundleProduct(pseudoId, `${m.title} (${m.packs} packs)`, m.packs * PRICE_PER_PACK);
+          addToCart(pseudoId);
+          setTimeout(()=>{ window.triggerSmoke && window.triggerSmoke(); }, 0);
+        }
+      };
     }
 
-    function ensureBundleProduct(id, title, price){
-      if (!PRODUCTS.find(p=>p.id===id)){
-        PRODUCTS.push({ id, title, price, cat:"Mission Patches", heat:"", popular:50 });
-      }
-    }
-
-    function getStateAndRenderCatalog(){
+    /* Render orchestrator */
+    function render(){
       const st = getState();
+
+      // tab styles
       [...tabs.querySelectorAll("button")].forEach(b=>{
         b.style.borderColor = (b.dataset.cat===st.cat) ? "#6366f1" : "var(--border)";
       });
 
       if (st.cat === "Mission Patches"){ renderMissions(); return; }
+      if (filterRow) filterRow.style.display = "";
 
-      const row = document.getElementById("shop-search")?.parentElement;
-      if (row) row.style.display = "";
-      pager.style.display = "";
-
-      searchInput.value = st.q; sortSel.value = st.sort;
       const filtered = applyFilters(PRODUCTS, st);
       const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
       const cur = Math.min(st.page, pages);
       const start = (cur-1) * PAGE_SIZE;
       const pageItems = filtered.slice(start, start + PAGE_SIZE);
 
-      grid.innerHTML = "";
       renderGrid(pageItems);
       renderPager(filtered.length, st);
+      pager.style.display = "";
     }
 
+    /* Events */
     tabs.addEventListener("click", (e)=>{
       const btn = e.target.closest("button[data-cat]"); if(!btn) return;
       setState({ cat: btn.dataset.cat, page: 1 });
+      setTimeout(()=>{ window.triggerSmoke && window.triggerSmoke(); }, 0);
     });
     pager.addEventListener("click", (e)=>{
       const btn = e.target.closest("button[data-page]"); if(!btn) return;
       setState({ page: parseInt(btn.dataset.page,10) });
+      setTimeout(()=>{ window.triggerSmoke && window.triggerSmoke(); }, 0);
     });
     searchInput.addEventListener("input", (e)=> setState({ q: e.target.value, page: 1 }));
     sortSel.addEventListener("change", (e)=> setState({ sort: e.target.value, page: 1 }));
@@ -379,16 +391,16 @@
               <button class="btn-ghost btn" data-remove="${it.id}">Remove</button>
             </div>
           </div>`).join('');
-        const total = items.reduce((s,it)=>s + (Number(it.price)||0)*it.qty, 0);
+        const total = items.reduce((s,it)=> s + (Number(it.price)||0)*it.qty, 0);
         if (cartTotal) cartTotal.textContent = total.toFixed(2);
-        const count = items.reduce((s,it)=>s+it.qty,0);
+        const count = items.reduce((s,it)=> s + it.qty, 0);
         if (cartCount) cartCount.textContent = count;
       }
     }
     document.getElementById('product-grid').addEventListener('click', (e)=>{
       const add = e.target.closest('.add'); if(!add) return;
       const card = e.target.closest('.pitem'); addToCart(card.getAttribute('data-id'));
-      triggerSmoke && triggerSmoke();
+      setTimeout(()=>{ window.triggerSmoke && window.triggerSmoke(); }, 0);
     });
     const cartItemsEl = document.getElementById('cartItems');
     if (cartItemsEl){
@@ -403,10 +415,11 @@
       alert('Payments: add Stripe Payment Links to PAYMENT_LINKS or integrate a backend. This is a static demo.');
     };
 
-    /* Initial render + hero rotation */
-    getStateAndRenderCatalog();
+    /* First paint */
+    render();
     updateCartUI();
 
+    /* HERO rotation (Top Sellers + Deals) */
     (function(){
       const hero = document.getElementById("hero"); if (!hero) return;
       const titleEl = hero.querySelector("h1");
@@ -426,7 +439,7 @@
   })();
   </script>
 
-  <!-- SmokeFX transition -->
+  <!-- SmokeFX (cleaner, lighter, never blocks) -->
   <script>
   (function(){
     const overlay = document.getElementById("transition");
@@ -445,22 +458,22 @@
     addEventListener("resize", resize); resize();
 
     const parts = [];
-    const maxAge = 1400;
+    const maxAge = 900; // ms
     function spawnBurst(){
       const baseY = innerHeight * 0.85;
       const baseX = innerWidth * 0.5;
-      const n = 320;
+      const n = 180; // reduced density
       for (let i=0;i<n;i++){
         const ang = Math.PI * (0.85 + Math.random()*0.3);
-        const spd = 1 + Math.random()*3.8;
+        const spd = 1 + Math.random()*3.5;
         parts.push({
           x: baseX + (Math.random()*40-20),
           y: baseY + (Math.random()*10-5),
           vx: Math.cos(ang)*spd,
           vy: Math.sin(ang)*spd - 0.5,
-          r:  10 + Math.random()*30,
-          a:  0.16 + Math.random()*0.20,
-          born: performance.now() + Math.random()*140
+          r:  8 + Math.random()*24,
+          a:  0.10 + Math.random()*0.16,
+          born: performance.now() + Math.random()*120
         });
       }
     }
@@ -469,7 +482,8 @@
     function frame(now){
       if (!playing) return;
       ctx.clearRect(0,0,innerWidth,innerHeight);
-      ctx.fillStyle="rgba(5,6,10,0.12)";
+      // subtle dark wash for depth
+      ctx.fillStyle="rgba(5,6,10,0.10)";
       ctx.fillRect(0,0,innerWidth,innerHeight);
 
       ctx.globalCompositeOperation = "lighter";
@@ -477,16 +491,19 @@
         const p = parts[i];
         if (now < p.born) continue;
         const age = now - p.born;
-        const life = Math.min(1, age / maxAge);
-        const fade = (1 - life);
+        const fade = Math.max(0, 1 - (age / maxAge));
 
+        // motion
         p.x += p.vx; p.y += p.vy;
         p.vy -= 0.008;
         p.vx += (Math.sin((p.y + now*0.05)/50))*0.02;
 
+        // softer plume
+        const base = 0.30 * p.a * fade;
         const grd = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
-        grd.addColorStop(0, `rgba(255,255,255,${0.35*p.a*fade})`);
-        grd.addColorStop(1, `rgba(180,180,180,0)`);
+        grd.addColorStop(0, `rgba(255,255,255,${base})`);
+        grd.addColorStop(0.55, `rgba(200,200,200,${base*0.35})`);
+        grd.addColorStop(1, `rgba(150,150,150,0)`);
         ctx.fillStyle = grd;
         ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
 
@@ -494,9 +511,10 @@
       }
       ctx.globalCompositeOperation = "source-over";
 
-      if (now - start > 900 && parts.length === 0) {
+      // finish
+      if (now - start > 700 && parts.length === 0) {
         overlay.style.opacity = "0";
-        setTimeout(()=>{ overlay.style.display="none"; playing=false; }, 150);
+        setTimeout(()=>{ overlay.style.opacity="0"; overlay.style.display="none"; playing=false; }, 120);
         return;
       }
       raf = requestAnimationFrame(frame);
@@ -509,17 +527,18 @@
       if (!playing) { playing = true; raf && cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); }
     }
 
+    // hook after state changes so it never hides the grid paint
     const tabs = document.getElementById("cat-tabs");
-    if (tabs) tabs.addEventListener("click", (e)=>{ if (e.target.closest("button[data-cat]")) triggerSmoke(); });
+    if (tabs) tabs.addEventListener("click", (e)=>{ if (e.target.closest("button[data-cat]")) setTimeout(triggerSmoke,0); });
     const pager = document.getElementById("pager");
-    if (pager) pager.addEventListener("click", (e)=>{ if (e.target.closest("button[data-page]")) triggerSmoke(); });
-    document.querySelectorAll('[data-route="home"], [data-route="shop"]').forEach(a=> a.addEventListener("click", triggerSmoke));
+    if (pager) pager.addEventListener("click", (e)=>{ if (e.target.closest("button[data-page]")) setTimeout(triggerSmoke,0); });
+    document.querySelectorAll('[data-route="home"], [data-route="shop"]').forEach(a=> a.addEventListener("click", ()=> setTimeout(triggerSmoke,0)));
 
-    window.triggerSmoke = triggerSmoke; // optional debug
+    window.triggerSmoke = triggerSmoke;
   })();
   </script>
 
-  <!-- Starfield background -->
+  <!-- Starfield background (dense, responsive) -->
   <script>
   (function(){
     const canvas = document.getElementById('bgfx'); if (!canvas) return;
@@ -541,35 +560,67 @@
 
     const stars = []; const meteors = []; const galaxies = []; let iss;
     const rand=(a,b)=>Math.random()*(b-a)+a;
-    function makeStar(){ const z=Math.random()*0.8+0.2; return {x:Math.random()*W,y:Math.random()*H,z,size:rand(0.6,1.6)*z,vx:(Math.random()*0.3+0.05)*z,vy:(Math.random()*0.2-0.1)*z,tw:Math.random()*Math.PI*2};}
-    function makeGalaxy(){ const r=rand(120,220); return {x:Math.random()*W,y:Math.random()*H*0.7,r,rot:rand(0,Math.PI*2),vr:rand(-0.0004,0.0004),hue:rand(200,320),alpha:rand(0.06,0.12)};}
-    function spawnMeteor(){ const top=Math.random()<0.5; const x=rand(-100,W*0.2); const y=top?rand(-60,H*0.3):rand(H*0.7,H+60); const s=rand(6,10); const a=top?rand(Math.PI*0.1,Math.PI*0.3):rand(-Math.PI*0.3,-Math.PI*0.1); meteors.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.6,1.2),age:0});}
+
+    function makeStar(){ const z=Math.random()*0.8+0.2;
+      return {x:Math.random()*W,y:Math.random()*H,z,size:rand(0.6,1.6)*z,vx:(Math.random()*0.3+0.05)*z,vy:(Math.random()*0.2-0.1)*z,tw:Math.random()*Math.PI*2};
+    }
+    function makeGalaxy(){ const r=rand(120,220);
+      return {x:Math.random()*W,y:Math.random()*H*0.7,r,rot:rand(0,Math.PI*2),vr:rand(-0.0004,0.0004),hue:rand(200,320),alpha:rand(0.06,0.12)};
+    }
+    function spawnMeteor(){ const top=Math.random()<0.5; const x=rand(-100,W*0.2); const y=top?rand(-60,H*0.3):rand(H*0.7,H+60); const s=rand(6,10);
+      const a=top?rand(Math.PI*0.1,Math.PI*0.3):rand(-Math.PI*0.3,-Math.PI*0.1);
+      meteors.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,birth:performance.now()});
+    }
     function makeISS(){ return {t:0,speed:reduced?0.00003:0.00006,size:24,path:(t)=>({x:W*(0.1+0.8*((1-Math.cos(2*Math.PI*t))/2)),y:H*(0.3+0.2*Math.sin(4*Math.PI*t))})};}
-    for(let i=0;i<STAR_COUNT;i++) stars.push(makeStar()); for(let i=0;i<GALAXY_COUNT;i++) galaxies.push(makeGalaxy()); iss=makeISS();
+
+    for(let i=0;i<STAR_COUNT;i++) stars.push(makeStar());
+    for(let i=0;i<GALAXY_COUNT;i++) galaxies.push(makeGalaxy());
+    iss=makeISS();
 
     function drawStar(s){ s.tw+=0.05; const tw=0.7+0.3*Math.sin(s.tw+s.z*5); ctx.globalAlpha=0.6*s.z*tw; ctx.fillStyle="#fff"; ctx.fillRect(s.x,s.y,s.size,s.size); ctx.globalAlpha=1;}
-    function drawGalaxy(g){ g.rot+=g.vr; const grad=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r); grad.addColorStop(0,`hsla(${g.hue},80%,70%,${g.alpha})`); grad.addColorStop(0.35,`hsla(${g.hue+40},70%,60%,${g.alpha*0.8})`); grad.addColorStop(1,`hsla(${g.hue},90%,50%,0)`); ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(g.rot); ctx.globalCompositeOperation="lighter"; ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(0,0,g.r*1.2,g.r*0.7,0,0,Math.PI*2); ctx.fill(); ctx.restore(); ctx.globalCompositeOperation="source-over";}
-    function drawMeteor(m,dt){ m.age+=dt; ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(Math.atan2(m.vy,m.vx)); const len=80; const grad=ctx.createLinearGradient(0,0,-len,0); grad.addColorStop(0,"rgba(255,255,255,0.95)"); grad.addColorStop(1,"rgba(255,180,120,0)"); ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-len,0); ctx.stroke(); ctx.restore();}
-    function drawISS(o){ const p=o.path(o.t); ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.sin(o.t*Math.PI*2)*0.1); ctx.fillStyle="#cfd8ff"; ctx.strokeStyle="#9fb3ff"; ctx.lineWidth=1.2; ctx.fillRect(-o.size*0.15,-o.size*0.15,o.size*0.3,o.size*0.3); ctx.fillStyle="#7aa6ff"; ctx.fillRect(-o.size*0.9,-o.size*0.12,o.size*0.55,o.size*0.24); ctx.fillRect(o.size*0.35,-o.size*0.12,o.size*0.55,o.size*0.24); ctx.beginPath(); ctx.moveTo(-o.size*0.35,-o.size*0.1); ctx.lineTo(o.size*0.35,-o.size*0.1); ctx.moveTo(-o.size*0.35,o.size*0.1); ctx.lineTo(o.size*0.35,o.size*0.1); ctx.stroke(); ctx.restore();}
+    function drawGalaxy(g){ g.rot+=g.vr; const grad=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);
+      grad.addColorStop(0,`hsla(${g.hue},80%,70%,${g.alpha})`); grad.addColorStop(0.35,`hsla(${g.hue+40},70%,60%,${g.alpha*0.8})`); grad.addColorStop(1,`hsla(${g.hue},90%,50%,0)`);
+      ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(g.rot); ctx.globalCompositeOperation="lighter"; ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(0,0,g.r*1.2,g.r*0.7,0,0,Math.PI*2); ctx.fill(); ctx.restore(); ctx.globalCompositeOperation="source-over";
+    }
+    function drawMeteor(m){ ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(Math.atan2(m.vy,m.vx)||0);
+      const len=80; const grad=ctx.createLinearGradient(0,0,-len,0); grad.addColorStop(0,"rgba(255,255,255,0.95)"); grad.addColorStop(1,"rgba(255,180,120,0)");
+      ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-len,0); ctx.stroke(); ctx.restore(); }
 
-    let last=performance.now();
+    let last=performance.now(); const meteorMaxAge=1200;
     function frame(now){
       const dt=Math.min((now-last)/1000,0.033); last=now;
       ctx.clearRect(0,0,innerWidth,innerHeight);
       galaxies.forEach(drawGalaxy);
+
       for(const s of stars){
         s.x+=s.vx; s.y+=s.vy;
         if(s.x>W+5) s.x=-5; if(s.y<-5) s.y=H+5; if(s.y>H+5) s.y=-5;
-        if(mouse.active){ const dx=mouse.x-s.x, dy=mouse.y-s.y, d2=dx*dx+dy*dy; if(d2<GRAVITY_RADIUS*GRAVITY_RADIUS){ const d=Math.sqrt(d2)||1; s.vx+=(dx/d)*GRAVITY_STRENGTH*s.z; s.vy+=(dy/d)*GRAVITY_STRENGTH*s.z; } }
+        if(mouse.active){ const dx=mouse.x-s.x, dy=mouse.y-s.y, d2=dx*dx+dy*dy;
+          if(d2<GRAVITY_RADIUS*GRAVITY_RADIUS){ const d=Math.sqrt(d2)||1; s.vx+=(dx/d)*GRAVITY_STRENGTH*s.z; s.vy+=(dy/d)*GRAVITY_STRENGTH*s.z; } }
         drawStar(s); s.vx*=0.998; s.vy*=0.998;
       }
-      if(!reduced && Math.random()<0.0012) spawnMeteor();
-      for(let i=meteors.length-1;i>=0;i--){const m=meteors[i]; m.x+=m.vx; m.y+=m.vy; drawMeteor(m,dt); if(now - (m.birth||0) > 1200||m.x>W+120||m.x<-120||m.y<-120||m.y>H+120) meteors.splice(i,1);}
-      iss.t=(iss.t+iss.speed)%1; drawISS(iss);
+
+      if(!reduced && Math.random()<METEOR_RATE) spawnMeteor();
+      for(let i=meteors.length-1;i>=0;i--){
+        const m=meteors[i]; m.x+=m.vx; m.y+=m.vy; drawMeteor(m);
+        if(now - m.birth > meteorMaxAge || m.x>W+120 || m.x<-120 || m.y<-120 || m.y>H+120) meteors.splice(i,1);
+      }
+
+      iss.t=(iss.t+iss.speed)%1;
+      const p=iss.path(iss.t); ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.sin(iss.t*Math.PI*2)*0.1);
+      ctx.fillStyle="#cfd8ff"; ctx.strokeStyle="#9fb3ff"; ctx.lineWidth=1.2;
+      ctx.fillRect(-iss.size*0.15,-iss.size*0.15,iss.size*0.3,iss.size*0.3);
+      ctx.fillStyle="#7aa6ff"; ctx.fillRect(-iss.size*0.9,-iss.size*0.12,iss.size*0.55,iss.size*0.24); ctx.fillRect(iss.size*0.35,-iss.size*0.12,iss.size*0.55,iss.size*0.24);
+      ctx.beginPath(); ctx.moveTo(-iss.size*0.35,-iss.size*0.1); ctx.lineTo(iss.size*0.35,-iss.size*0.1); ctx.moveTo(-iss.size*0.35,iss.size*0.1); ctx.lineTo(iss.size*0.35,iss.size*0.1); ctx.stroke(); ctx.restore();
+
       if(!reduced) requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
-    addEventListener("resize",()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(1,0,0,1,0,0);ctx.scale(DPR,DPR);});
+
+    addEventListener("resize",()=>{
+      W=canvas.width=innerWidth; H=canvas.height=innerHeight;
+      canvas.width=W*DPR; canvas.height=H*DPR; ctx.setTransform(1,0,0,1,0,0); ctx.scale(DPR,DPR);
+    });
     addEventListener("click",()=>{ if(!reduced) spawnMeteor(); });
   })();
   </script>
