@@ -58,11 +58,11 @@
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
       <div>
         <strong>Inventory Overrides</strong>
-        <div class="small muted">These values override the live catalog in your browser. The front page reads them on load.</div>
+        <div class="small muted">These override the live catalog in this browser. The front page reads them on load.</div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn" id="saveBtn" disabled>Save</button>
-        <button class="btn secondary" id="reloadBtn">Reload Overrides</button>
+        <button class="btn secondary" id="reloadBtn">Reload</button>
         <button class="btn danger" id="clearBtn">Clear Overrides</button>
       </div>
     </div>
@@ -95,6 +95,8 @@
 <script>
 /*** CONFIG ***/
 const PIN = "RCJ-ADMIN-1234"; // <-- change me later
+
+/* FULL SKU LIST — keep in sync with index.html */
 const CATALOG = [
   { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)" },
   { id:"sc-hs-8",   title:"Honey Sriracha (8oz)" },
@@ -134,25 +136,28 @@ function saveOverrides(data){ localStorage.setItem('rcj.inventory', JSON.stringi
 
 /*** UI BUILD ***/
 const tbody = document.getElementById('tbody');
+function row(p, o){
+  const safe = (x)=> (x==null ? "" : x);
+  const title = safe(o.title) || p.title;
+  const price = safe(o.price);
+  const stock = safe(o.stock);
+  const active= (o.active !== false);
+  const img   = safe(o.img);
+
+  return `
+    <tr data-id="${p.id}">
+      <td>${p.id}</td>
+      <td><input type="text"  class="title" value="${title}"/></td>
+      <td><input type="number" step="0.01" class="price" value="${price}" placeholder="(keep)"/></td>
+      <td><input type="number" step="1"    class="stock" value="${stock}" placeholder="(keep)"/></td>
+      <td style="text-align:center"><input type="checkbox" class="active" ${active?"checked":""}/></td>
+      <td><input type="text" class="img" value="${img}" placeholder="https://..."/></td>
+    </tr>
+  `;
+}
 function render(){
   const o = loadOverrides();
-  tbody.innerHTML = CATALOG.map(p=>{
-    const row = o[p.id] || {};
-    const price = row.price ?? "";
-    const stock = row.stock ?? "";
-    const active = row.active !== false; // default true
-    const img = row.img ?? "";
-    return `
-      <tr data-id="${p.id}">
-        <td>${p.id}</td>
-        <td>${p.title}</td>
-        <td><input type="number" step="0.01" value="${price}" placeholder="(keep)"/></td>
-        <td><input type="number" step="1" value="${stock}" placeholder="(keep)"/></td>
-        <td style="text-align:center"><input type="checkbox" ${active?"checked":""}/></td>
-        <td><input type="text" value="${img}" placeholder="https://..."/></td>
-      </tr>
-    `;
-  }).join("");
+  tbody.innerHTML = CATALOG.map(p=> row(p, o[p.id] || {}) ).join("");
 }
 render();
 
@@ -168,17 +173,18 @@ document.getElementById('saveBtn').onclick = ()=>{
   const o = loadOverrides();
   tbody.querySelectorAll('tr').forEach(tr=>{
     const id = tr.getAttribute('data-id');
-    const [priceEl, stockEl, activeEl, imgEl] = tr.querySelectorAll('input');
-    const price = priceEl.value !== "" ? Number(priceEl.value) : undefined;
-    const stock = stockEl.value !== "" ? Number(stockEl.value) : undefined;
-    const active= activeEl.checked;
-    const img   = imgEl.value !== "" ? imgEl.value : undefined;
+    const title = tr.querySelector('.title').value.trim();
+    const price = tr.querySelector('.price').value;
+    const stock = tr.querySelector('.stock').value;
+    const active= tr.querySelector('.active').checked;
+    const img   = tr.querySelector('.img').value.trim();
 
     o[id] = o[id] || {};
-    if (price !== undefined && !Number.isNaN(price)) o[id].price = price;
-    if (stock !== undefined && Number.isInteger(stock)) o[id].stock = stock;
+    if (title !== "") o[id].title = title;
+    if (price !== "") o[id].price = Number(price);
+    if (stock !== "") o[id].stock = Number(stock);
     o[id].active = !!active;
-    if (img !== undefined) o[id].img = img;
+    if (img !== "") o[id].img = img;
   });
   saveOverrides(o);
   setStatus("Saved overrides. Refresh the main site to see changes.", "ok");
