@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SpaceFlix • Stream & Shop</title>
+  <title>Rocket City Jerky • Space-themed, boldly flavored</title>
   <meta name="color-scheme" content="dark" />
   <style>
     :root{
@@ -13,7 +13,7 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%;}
-    body{margin:0;font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu; background:var(--bg); color:var(--text);}
+    body{margin:0;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; background:var(--bg); color:var(--text);}
     a{color:var(--text);text-decoration:none}
     button{font:inherit}
     .container{max-width:1200px;margin:0 auto;padding:1.25rem}
@@ -26,31 +26,13 @@
     .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem;border-radius:.5rem;border:1px solid transparent;
       background:var(--indigo);color:#fff;cursor:pointer;transition:transform .06s ease, background .2s ease}
     .btn:active{transform:translateY(1px)}
-    .btn-ghost{background:transparent;border-color:var(--border)}
-    .badge{display:inline-block;padding:.15rem .45rem;background:var(--panel);border:1px solid var(--border);border-radius:.35rem;font-size:.75rem;color:var(--muted)}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:#fff}
     .hero{position:relative;aspect-ratio:21/9;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-    .hero-slide{position:absolute;inset:0;display:grid;place-items:end; padding:2rem; transition:opacity 600ms ease}
-    .slide0{background:radial-gradient(1200px 600px at 10% 10%, rgba(99,102,241,.25), transparent), radial-gradient(900px 480px at 80% 30%, rgba(6,182,212,.2), transparent)}
-    .slide1{background:radial-gradient(900px 540px at 15% 20%, rgba(219,39,119,.25), transparent), radial-gradient(1000px 500px at 80% 20%, rgba(6,182,212,.18), transparent)}
-    .slide2{background:radial-gradient(1000px 520px at 15% 20%, rgba(99,102,241,.25), transparent), radial-gradient(850px 460px at 80% 20%, rgba(219,39,119,.2), transparent)}
     .hero-gradient{position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.7), transparent 60%)}
+    .hero-inner{position:absolute;inset:0;display:grid;place-items:end;padding:2rem}
     .hero h1{font-size:2rem;margin:0 0 .35rem 0}
-    .row{margin-top:1.25rem}
-    .row h2{margin:0 0 .5rem 0}
-    .rail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.5rem}
-    @media (max-width: 1024px){.rail{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    @media (max-width: 640px){.rail{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    .card{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--panel);min-height:180px;
-      transition:transform .25s cubic-bezier(.2,.6,.2,1), box-shadow .25s}
-    .card:hover{transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .card .label{position:absolute;left:.5rem;bottom:.5rem;font-weight:600;text-shadow:0 1px 0 rgba(0,0,0,.5)}
-    .poster{height:100%;display:grid;place-items:center;font-weight:700;color:#fff;opacity:.95}
-    .p0{background:linear-gradient(135deg,#1d2340,#44235a)}
-    .p1{background:linear-gradient(135deg,#1f2242,#0b3b46)}
-    .p2{background:linear-gradient(135deg,#211f42,#531a35)}
+    .row{margin-top:1rem}
     .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}
-    @media (max-width: 1024px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    @media (max-width: 640px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .pitem{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:.75rem;display:flex;flex-direction:column;gap:.4rem}
     .price{font-weight:600}
     .drawer{position:fixed;right:0;top:0;height:100dvh;width:min(420px,100%);background:#0b0d14;border-left:1px solid var(--border);
@@ -59,23 +41,27 @@
     .drawer header{display:flex;align-items:center;justify-content:space-between;padding:1rem;border-bottom:1px solid var(--border)}
     .drawer main{flex:1;overflow:auto;padding:1rem}
     .drawer footer{padding:1rem;border-top:1px solid var(--border)}
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:50}
-    .modal.open{display:grid}
-    .modal-card{width:min(900px,95vw);background:#0b0d14;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;border-bottom:1px solid var(--border)}
-    .video{aspect-ratio:16/9;background:#000;display:grid;place-items:center;color:#888}
     .transition{pointer-events:none;position:fixed;inset:0;z-index:60;opacity:0;transition:opacity .15s ease}
     .transition.active{opacity:1}
     .plume{position:absolute;left:50%;transform:translateX(-50%);bottom:-20%;width:160vw;height:60vh;border-radius:50%;
       background:radial-gradient(ellipse at center, rgba(255,165,90,.9), rgba(255,135,60,.6) 50%, transparent 70%);
       filter:blur(18px);animation:rise .7s ease forwards}
     @keyframes rise { from{bottom:-40%;opacity:.3} to{bottom:120%;opacity:0} }
-    #bgfx{position:fixed;inset:0;z-index:-1;opacity:.8}
-    .input{background:transparent;border:1px solid var(--border);border-radius:.5rem;padding:.45rem .6rem;color:var(--text)}
-    @media (prefers-reduced-motion: reduce){
-      .card:hover{transform:none}
-      .plume{animation:none;display:none}
+    #bgfx{position:fixed;inset:0;z-index:-1;opacity:.9}
+    .input{background:transparent;border:1px solid var(--border);border-radius:.5rem;padding:.45rem .6rem;color:#fff}
+    .badge{display:none} /* hide unwanted yellow labels */
+
+    /* Mobile polish */
+    @media (max-width: 640px){
+      .container{padding:.75rem}
+      .hero{aspect-ratio:16/9}
+      .hero h1{font-size:1.5rem}
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+      .nav-right{display:none}
     }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){ .plume{animation:none;display:none} }
   </style>
 </head>
 <body>
@@ -83,84 +69,53 @@
 
   <div class="navbar" role="navigation">
     <div class="nav-left">
-      <a class="brand" href="#" data-route="home">🚀 SpaceFlix</a>
+      <a class="brand" href="#" data-route="home">🚀 Rocket City Jerky</a>
       <a class="nav-link" href="#" data-route="home">Home</a>
       <a class="nav-link" href="#shop" data-route="shop">Shop</a>
-      <span class="badge">Demo</span>
     </div>
     <div class="nav-right" style="display:flex;align-items:center;gap:.5rem">
-      <input class="input" id="search" placeholder="Search..." aria-label="Search"/>
+      <input class="input" id="search" placeholder="Search…" aria-label="Search"/>
       <button class="btn-ghost btn" id="cartBtn" aria-haspopup="dialog" aria-controls="cartDrawer">Cart <span id="cartCount" class="badge" aria-live="polite">0</span></button>
-      <button class="btn" id="signinBtn">Sign in</button>
     </div>
   </div>
 
   <div class="container">
-    <section class="hero" aria-label="Featured">
-      <div class="hero-slide slide0" style="opacity:1">
-        <div>
-          <h1>Explore the Cosmos</h1>
-          <p class="muted">Binge epic tales. Shop stellar gear.</p>
-        </div>
-      </div>
-      <div class="hero-slide slide1" style="opacity:0">
-        <div>
-          <h1>Orion’s Belt</h1>
-          <p class="muted">A rogue pilot outruns the event horizon.</p>
-        </div>
-      </div>
-      <div class="hero-slide slide2" style="opacity:0">
-        <div>
-          <h1>Mango Habanero</h1>
-          <p class="muted">Sweet heat. Supernova flavor.</p>
-        </div>
-      </div>
+    <!-- HERO -->
+    <section class="hero" aria-label="Featured" id="hero">
       <div class="hero-gradient"></div>
+      <div class="hero-inner">
+        <div>
+          <h1>Rocket City Jerky</h1>
+          <p class="muted">Top Sellers & Deals rotate here.</p>
+        </div>
+      </div>
     </section>
 
-    <section class="row" id="rails">
-      <h2>Trending</h2>
-      <div class="rail" id="rail-trending"></div>
+    <!-- SHOP -->
+    <section class="row" id="shop" aria-label="Shop">
+      <!-- Tabs -->
+      <div id="cat-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0 1rem">
+        <button class="btn-ghost btn" data-cat="Space Craft">🚀 Space Craft</button>
+        <button class="btn-ghost btn" data-cat="Galaxies">🌌 Galaxies (Mild)</button>
+        <button class="btn-ghost btn" data-cat="Stars">✨ Stars (Intense)</button>
+        <button class="btn-ghost btn" data-cat="Mission Patches">🎖️ Mission Patches</button>
+      </div>
 
-      <h2 style="margin-top:1rem">For You</h2>
-      <div class="rail" id="rail-foryou"></div>
+      <!-- Search + Sort -->
+      <div style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0 1rem">
+        <input class="input" id="shop-search" placeholder="Search flavors…" aria-label="Search products" />
+        <select class="input" id="shop-sort" aria-label="Sort">
+          <option value="popular">Sort: Popular</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="name-asc">Name: A → Z</option>
+        </select>
+      </div>
 
-      <h2 style="margin-top:1rem">New Releases</h2>
-      <div class="rail" id="rail-new"></div>
-
-      <h2 style="margin-top:1rem">By Genre: Sci-Fi</h2>
-      <div class="rail" id="rail-scifi"></div>
+      <!-- Grid + Pager -->
+      <div class="grid" id="product-grid"></div>
+      <div id="pager" style="display:flex;justify-content:center;gap:.35rem;margin-top:1rem"></div>
     </section>
-
-<section class="row" id="shop" aria-label="Shop">
-  <h2>Shop Rocket City Jerky</h2>
-
-  <!-- Category tabs -->
-  <div id="cat-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0 1rem">
-    <button class="btn-ghost btn" data-cat="">All</button>
-    <button class="btn-ghost btn" data-cat="Space Craft">Space Craft</button>
-    <button class="btn-ghost btn" data-cat="Galaxies">Galaxies (mild)</button>
-    <button class="btn-ghost btn" data-cat="Stars">Stars (intense)</button>
-  </div>
-
-  <!-- Search + sort row -->
-  <div style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0 1rem">
-    <input class="input" id="shop-search" placeholder="Search flavors…" aria-label="Search products" />
-    <select class="input" id="shop-sort" aria-label="Sort">
-      <option value="popular">Sort: Popular</option>
-      <option value="price-asc">Price: Low → High</option>
-      <option value="price-desc">Price: High → Low</option>
-      <option value="name-asc">Name: A → Z</option>
-    </select>
-  </div>
-
-  <!-- Grid -->
-  <div class="grid" id="product-grid"></div>
-
-  <!-- Pagination -->
-  <div id="pager" style="display:flex;justify-content:center;gap:.35rem;margin-top:1rem"></div>
-</section>
-
   </div>
 
   <!-- Cart Drawer -->
@@ -175,267 +130,247 @@
         <strong>Total: $<span id="cartTotal">0.00</span></strong>
         <button class="btn" id="checkoutBtn" title="Simulated checkout">Checkout</button>
       </div>
-      <p class="muted" style="color:var(--muted);margin:.5rem 0 0">Stripe Checkout integration omitted in single-file demo.</p>
+      <p class="muted" style="color:var(--muted);margin:.5rem 0 0">Checkout is simulated in this demo.</p>
     </footer>
   </aside>
-
-  <!-- Player Modal -->
-  <div class="modal" id="playerModal" role="dialog" aria-modal="true" aria-labelledby="playerTitle">
-    <div class="modal-card">
-      <div class="modal-header">
-        <strong id="playerTitle">Now Playing</strong>
-        <button class="btn-ghost btn" id="closePlayerBtn" aria-label="Close player">Close</button>
-      </div>
-      <div class="video"><span>HLS player placeholder (demo)</span></div>
-      <div style="padding:1rem">
-        <p id="playerSynopsis" style="color:var(--muted)"></p>
-      </div>
-    </div>
-  </div>
 
   <!-- Rocket Transition -->
   <div class="transition" id="transition"><div class="plume"></div></div>
 
-  <!-- Scripts -->
-  <script>
-    // (existing demo logic for rails, shop, cart goes here… keep your original script block)
-  </script>
-<!-- Catalog (categories + pagination) -->
-<script>
-(function(){
-  // ---- DATA ----------------------------------------------------
-  // Categories:
-  //  - Space Craft (unique flavors)
-  //  - Galaxies (mild heat)
-  //  - Stars (intense heat)
-
-  const PRODUCTS = [
-    // Space Craft — unique flavors
-    { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)",   price:12.99, cat:"Space Craft", heat:"mild",    popular:95 },
-    { id:"sc-hs-8",   title:"Honey Sriracha (8oz)",                 price:13.99, cat:"Space Craft", heat:"medium",  popular:90 },
-    { id:"sc-tc-8",   title:"Teriyaki Comet (8oz)",                 price:12.99, cat:"Space Craft", heat:"mild",    popular:85 },
-    { id:"sc-gg-12",  title:"Galactic Garlic (12oz)",               price:17.99, cat:"Space Craft", heat:"mild",    popular:80 },
-    { id:"sc-ssh-8",  title:"Stellar Sweet Heat (8oz)",             price:14.99, cat:"Space Craft", heat:"medium",  popular:78 },
-    { id:"sc-cc-8",   title:"Cosmic Cajun (8oz)",                   price:13.99, cat:"Space Craft", heat:"medium",  popular:75 },
-    { id:"sc-sn-8",   title:"Supernova BBQ (8oz)",                  price:14.99, cat:"Space Craft", heat:"mild",    popular:72 },
-    { id:"sc-ml-8",   title:"Meteor Lime (8oz)",                    price:13.99, cat:"Space Craft", heat:"medium",  popular:70 },
-    { id:"sc-aa-8",   title:"Andromeda Applewood (8oz)",            price:15.99, cat:"Space Craft", heat:"mild",    popular:68 },
-    { id:"sc-vv-8",   title:"Voyager Vinegar (8oz)",                price:13.99, cat:"Space Craft", heat:"mild",    popular:66 },
-
-    // Galaxies — mild heat
-    { id:"gal-mh-12", title:"Mango Habanero (12oz)",                price:16.99, cat:"Galaxies",    heat:"mild",    popular:98 },
-    { id:"gal-ao-8",  title:"Astro Original (8oz)",                 price:12.99, cat:"Galaxies",    heat:"mild",    popular:88 },
-    { id:"gal-ss-8",  title:"Saturn Smoke (8oz)",                   price:14.99, cat:"Galaxies",    heat:"mild",    popular:76 },
-    { id:"gal-ll-8",  title:"Lunar Lemon (8oz)",                    price:13.99, cat:"Galaxies",    heat:"mild",    popular:74 },
-    { id:"gal-ao-12", title:"Astro Original (12oz)",                price:18.99, cat:"Galaxies",    heat:"mild",    popular:73 },
-    { id:"gal-gs-8",  title:"Ganymede Sesame (8oz)",                price:13.99, cat:"Galaxies",    heat:"mild",    popular:69 },
-    { id:"gal-pp-8",  title:"Pluto Peppercorn (8oz)",               price:13.49, cat:"Galaxies",    heat:"mild",    popular:67 },
-    { id:"gal-vm-8",  title:"Venus Maple (8oz)",                    price:14.49, cat:"Galaxies",    heat:"mild",    popular:65 },
-
-    // Stars — intense heat
-    { id:"st-bhh-8",  title:"Black Hole Hot (8oz)",                 price:15.99, cat:"Stars",       heat:"intense", popular:97 },
-    { id:"st-ij-8",   title:"Ion Jalapeño (8oz)",                   price:13.99, cat:"Stars",       heat:"intense", popular:84 },
-    { id:"st-ccp-8",  title:"Comet Chipotle (8oz)",                 price:14.99, cat:"Stars",       heat:"intense", popular:83 },
-    { id:"st-nn-12",  title:"Nebula Nitro (12oz)",                  price:18.99, cat:"Stars",       heat:"intense", popular:81 },
-    { id:"st-fpc-8",  title:"Five Peppers Collide (8oz)",           price:14.99, cat:"Stars",       heat:"intense", popular:79 },
-    { id:"st-mh-8",   title:"Magma Habanero (8oz)",                 price:15.49, cat:"Stars",       heat:"intense", popular:77 },
-    { id:"st-ts-8",   title:"Tachyon Scorpion (8oz)",               price:16.49, cat:"Stars",       heat:"intense", popular:75 },
-    { id:"st-dr-8",   title:"Dragon Reentry (8oz)",                 price:16.99, cat:"Stars",       heat:"intense", popular:74 },
-  ];
-
-  const PAGE_SIZE = 8;
-
-  // ---- DOM -----------------------------------------------------
-  const grid = document.getElementById("product-grid");
-  const pager = document.getElementById("pager");
-  const tabs = document.getElementById("cat-tabs");
-  const searchInput = document.getElementById("shop-search");
-  const sortSel = document.getElementById("shop-sort");
-
-  // ---- ROUTER (URL → state) -----------------------------------
-  function getState(){
-    const url = new URL(location.href);
-    return {
-      cat: url.searchParams.get("cat") || "",
-      q: url.searchParams.get("q") || "",
-      sort: url.searchParams.get("sort") || "popular",
-      page: Math.max(1, parseInt(url.searchParams.get("page") || "1", 10))
-    };
-  }
-  function setState(next){
-    const url = new URL(location.href);
-    for (const [k,v] of Object.entries(next)){
-      if (v==="" || v==null) url.searchParams.delete(k);
-      else url.searchParams.set(k, String(v));
-    }
-    history.pushState({}, "", url);
-    render();
-  }
-  window.addEventListener("popstate", render);
-
-  // ---- DATA → UI ----------------------------------------------
-  function applyFilters(items, st){
-    let out = items.slice();
-    if (st.cat) out = out.filter(p => p.cat === st.cat);
-    if (st.q) {
-      const q = st.q.toLowerCase();
-      out = out.filter(p => p.title.toLowerCase().includes(q));
-    }
-    switch (st.sort){
-      case "price-asc":  out.sort((a,b)=>a.price-b.price); break;
-      case "price-desc": out.sort((a,b)=>b.price-a.price); break;
-      case "name-asc":   out.sort((a,b)=>a.title.localeCompare(b.title)); break;
-      default:           out.sort((a,b)=>b.popular-a.popular);
-    }
-    return out;
-  }
-
-  function renderGrid(items){
-    grid.innerHTML = items.map(p => `
-      <div class="pitem" data-id="${p.id}">
-        <div style="height:130px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">${p.cat}</div>
-        <div style="display:flex;justify-content:space-between;gap:.5rem">
-          <div style="font-weight:600">${p.title}</div>
-        </div>
-        <div class="price">$${p.price.toFixed(2)}</div>
-        <div class="badge">Heat: ${p.heat}</div>
-        <button class="btn add">Add to Cart</button>
-      </div>
-    `).join("");
-  }
-
-  function renderPager(total, st){
-    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    const cur = Math.min(st.page, pages);
-    let html = "";
-    const mk = (label, page, disabled=false, active=false) =>
-      `<button class="btn-ghost btn" data-page="${page}" ${disabled?"disabled":""} style="${active?"border-color:#6366f1":""}">${label}</button>`;
-
-    html += mk("«", 1, cur===1);
-    html += mk("‹", Math.max(1, cur-1), cur===1);
-    for (let i=1;i<=pages;i++){
-      const show = (i<=2) || (i>pages-2) || (Math.abs(i-cur)<=1);
-      if (i===3 && cur>4) { html += `<span class="badge">…</span>`; continue; }
-      if (i===pages-2 && cur<pages-3) { html += `<span class="badge">…</span>`; continue; }
-      if (show) html += mk(String(i), i, false, i===cur);
-    }
-    html += mk("›", Math.min(pages, cur+1), cur===pages);
-    html += mk("»", pages, cur===pages);
-    pager.innerHTML = html;
-  }
-
-  function render(){
-    const st = getState();
-
-    // Sync controls
-    [...tabs.querySelectorAll("button")].forEach(b=>{
-      b.classList.toggle("btn", true);
-      b.classList.toggle("btn-ghost", true);
-      b.style.borderColor = (b.dataset.cat===st.cat) ? "#6366f1" : "var(--border)";
-    });
-    searchInput.value = st.q;
-    sortSel.value = st.sort;
-
-    const filtered = applyFilters(PRODUCTS, st);
-    const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-    const cur = Math.min(st.page, pages);
-    const start = (cur-1) * PAGE_SIZE;
-    const pageItems = filtered.slice(start, start + PAGE_SIZE);
-
-    renderGrid(pageItems);
-    renderPager(filtered.length, st);
-  }
-
-  // ---- EVENTS --------------------------------------------------
-  tabs.addEventListener("click", (e)=>{
-    const btn = e.target.closest("button[data-cat]");
-    if (!btn) return;
-    setState({ cat: btn.dataset.cat, page: 1 });
-  });
-  pager.addEventListener("click", (e)=>{
-    const btn = e.target.closest("button[data-page]");
-    if (!btn) return;
-    setState({ page: parseInt(btn.dataset.page,10) });
-  });
-  searchInput.addEventListener("input", (e)=>{
-    setState({ q: e.target.value, page: 1 });
-  });
-  sortSel.addEventListener("change", (e)=>{
-    setState({ sort: e.target.value, page: 1 });
-  });
-
-  // Reuse existing cart code if present:
-  const cartKey = 'spaceflix.cart';
-  function loadCart(){ try{ return JSON.parse(localStorage.getItem(cartKey) || '[]'); }catch{return []} }
-  function saveCart(items){ localStorage.setItem(cartKey, JSON.stringify(items)); updateCartUI(); }
-  function addToCart(id){ const items=loadCart(); const found=items.find(x=>x.id===id);
-    if(found) found.qty++; else items.push({id, qty:1});
-    saveCart(items);
-  }
-  function updateCartUI(){
-    const cartItems = document.getElementById('cartItems');
-    const cartTotal = document.getElementById('cartTotal');
-    const cartCount = document.getElementById('cartCount');
-    const items = loadCart().map(it=>{
-      const p = PRODUCTS.find(x=>x.id===it.id); return {...it, ...p};
-    });
-    if (cartItems){
-      cartItems.innerHTML = items.map(it=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:.5rem 0">
-          <div><div>${it.title}</div><div class="badge">Qty: ${it.qty}</div></div>
-          <div style="display:flex;align-items:center;gap:.5rem">
-            <strong>$${(it.price*it.qty).toFixed(2)}</strong>
-            <button class="btn-ghost btn" data-remove="${it.id}">Remove</button>
-          </div>
-        </div>
-      `).join('');
-      const total = items.reduce((s,it)=>s+it.price*it.qty,0);
-      if (cartTotal) cartTotal.textContent = total.toFixed(2);
-      const count = items.reduce((s,it)=>s+it.qty,0);
-      if (cartCount) cartCount.textContent = count;
-    }
-  }
-  document.getElementById('product-grid').addEventListener('click', (e)=>{
-    const add = e.target.closest('.add'); if(!add) return;
-    const card = e.target.closest('.pitem'); addToCart(card.getAttribute('data-id'));
-    const t=document.getElementById('transition'); if(t){t.classList.add('active'); setTimeout(()=>t.classList.remove('active'), 500);}
-  });
-  const cartItemsEl = document.getElementById('cartItems');
-  if (cartItemsEl){
-    cartItemsEl.addEventListener('click', (e)=>{
-      const rm = e.target.getAttribute('data-remove');
-      if(!rm) return;
-      let items = loadCart().filter(x=>x.id!==rm);
-      saveCart(items);
-    });
-  }
-
-  // Initialize
-  render();
-  updateCartUI();
-})();
-</script>
-
-  <!-- SpaceFX background -->
-  <script>
-    /* paste the full SpaceFX script block here (the long one I gave earlier) */
-  </script>
-</body>
-</html>
-  <!-- SpaceFX background: stars, galaxies, meteors, ISS -->
+  <!-- Catalog + Tabs + Pager + Cart -->
   <script>
   (function(){
-    const canvas = document.getElementById('bgfx');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: true });
-    let W = canvas.width = innerWidth;
-    let H = canvas.height = innerHeight;
+    const PRODUCTS = [
+      /* Space Craft */
+      { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)", price:12.99, cat:"Space Craft", heat:"mild",    popular:95 },
+      { id:"sc-hs-8",   title:"Honey Sriracha (8oz)",               price:13.99, cat:"Space Craft", heat:"medium",  popular:90 },
+      { id:"sc-tc-8",   title:"Teriyaki Comet (8oz)",               price:12.99, cat:"Space Craft", heat:"mild",    popular:85 },
+      { id:"sc-gg-12",  title:"Galactic Garlic (12oz)",             price:17.99, cat:"Space Craft", heat:"mild",    popular:80 },
+      { id:"sc-ssh-8",  title:"Stellar Sweet Heat (8oz)",           price:14.99, cat:"Space Craft", heat:"medium",  popular:78 },
+      { id:"sc-sn-8",   title:"Supernova BBQ (8oz)",                price:14.99, cat:"Space Craft", heat:"mild",    popular:72 },
+      { id:"sc-ml-8",   title:"Meteor Lime (8oz)",                  price:13.99, cat:"Space Craft", heat:"medium",  popular:70 },
+      { id:"sc-aa-8",   title:"Andromeda Applewood (8oz)",          price:15.99, cat:"Space Craft", heat:"mild",    popular:68 },
 
+      /* Galaxies (mild) */
+      { id:"gal-mh-12", title:"Mango Habanero (12oz)",              price:16.99, cat:"Galaxies",    heat:"mild",    popular:98 },
+      { id:"gal-ao-8",  title:"Astro Original (8oz)",               price:12.99, cat:"Galaxies",    heat:"mild",    popular:88 },
+      { id:"gal-ss-8",  title:"Saturn Smoke (8oz)",                 price:14.99, cat:"Galaxies",    heat:"mild",    popular:76 },
+      { id:"gal-ll-8",  title:"Lunar Lemon (8oz)",                  price:13.99, cat:"Galaxies",    heat:"mild",    popular:74 },
+
+      /* Stars (intense) */
+      { id:"st-bhh-8",  title:"Black Hole Hot (8oz)",               price:15.99, cat:"Stars",       heat:"intense", popular:97 },
+      { id:"st-ij-8",   title:"Ion Jalapeño (8oz)",                 price:13.99, cat:"Stars",       heat:"intense", popular:84 },
+      { id:"st-ccp-8",  title:"Comet Chipotle (8oz)",               price:14.99, cat:"Stars",       heat:"intense", popular:83 },
+      { id:"st-nn-12",  title:"Nebula Nitro (12oz)",                price:18.99, cat:"Stars",       heat:"intense", popular:81 },
+    ];
+    window.PRODUCTS = PRODUCTS;
+
+    const PAGE_SIZE = 8;
+    const grid = document.getElementById("product-grid");
+    const pager = document.getElementById("pager");
+    const tabs  = document.getElementById("cat-tabs");
+    const searchInput = document.getElementById("shop-search");
+    const sortSel = document.getElementById("shop-sort");
+
+    function getState(){
+      const url = new URL(location.href);
+      return {
+        cat: url.searchParams.get("cat") || "Space Craft",
+        q: url.searchParams.get("q") || "",
+        sort: url.searchParams.get("sort") || "popular",
+        page: Math.max(1, parseInt(url.searchParams.get("page") || "1", 10))
+      };
+    }
+    function setState(next){
+      const url = new URL(location.href);
+      for (const [k,v] of Object.entries(next)){
+        if (v==="" || v==null) url.searchParams.delete(k);
+        else url.searchParams.set(k, String(v));
+      }
+      history.pushState({}, "", url);
+      render();
+    }
+    window.addEventListener("popstate", render);
+
+    function applyFilters(items, st){
+      let out = items.slice();
+      if (st.cat && st.cat !== "Mission Patches") out = out.filter(p => p.cat === st.cat);
+      if (st.q) { const q = st.q.toLowerCase(); out = out.filter(p => p.title.toLowerCase().includes(q)); }
+      switch (st.sort){
+        case "price-asc":  out.sort((a,b)=>a.price-b.price); break;
+        case "price-desc": out.sort((a,b)=>b.price-a.price); break;
+        case "name-asc":   out.sort((a,b)=>a.title.localeCompare(b.title)); break;
+        default:           out.sort((a,b)=>b.popular-a.popular);
+      }
+      return out;
+    }
+
+    function renderGrid(items){
+      grid.innerHTML = items.map(p => `
+        <div class="pitem" data-id="${p.id}">
+          <div style="height:130px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">${p.cat}</div>
+          <div style="font-weight:600">${p.title}</div>
+          <div class="price">$${p.price.toFixed(2)}</div>
+          <button class="btn add">Add to Cart</button>
+        </div>
+      `).join("");
+    }
+
+    function renderPager(total, st){
+      const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      const cur = Math.min(st.page, pages);
+      let html = "";
+      const mk = (label, page, disabled=false, active=false) =>
+        `<button class="btn-ghost btn" data-page="${page}" ${disabled?"disabled":""} style="${active?"border-color:#6366f1":""}">${label}</button>`;
+      html += mk("«", 1, cur===1);
+      html += mk("‹", Math.max(1, cur-1), cur===1);
+      for (let i=1;i<=pages;i++){
+        const show = (i<=2) || (i>pages-2) || (Math.abs(i-cur)<=1);
+        if (i===3 && cur>4) { html += `<span class="badge">…</span>`; continue; }
+        if (i===pages-2 && cur<pages-3) { html += `<span class="badge">…</span>`; continue; }
+        if (show) html += mk(String(i), i, false, i===cur);
+      }
+      html += mk("›", Math.min(pages, cur+1), cur===pages);
+      html += mk("»", pages, cur===pages);
+      pager.innerHTML = html;
+    }
+
+    function renderMissions(){
+      pager.style.display = "none";
+      searchInput.parentElement.style.display = "none";
+      const MISSIONS = [
+        { id:"m1",  title:"Mission 1 — Liftoff",      subtitle:"First mission",          packs:3,   reward:"Mission patch",         note:"3 packs of jerky" },
+        { id:"m2",  title:"Mission 2 — Refuel",       subtitle:"Keep the tanks full",    packs:5,   reward:"Mission patch",         note:"5 packs (any flavor)" },
+        { id:"m3",  title:"Mission 3 — Exoplanetary", subtitle:"Explore deep flavors",   packs:10,  reward:"Mission patch",         note:"10 packs (any combo)" },
+        { id:"m4",  title:"Mission 4 — Interstellar", subtitle:"Company fuel-up",        packs:40,  reward:"Limited company patch", note:"40 bags for teams/companies" },
+        { id:"m5",  title:"Mission 5 — Limited Coin", subtitle:"Collector’s reward",     packs:100, reward:"Limited edition coin",  note:"100 bags (any combo)" },
+      ];
+      const grid = document.getElementById("product-grid");
+      grid.innerHTML = MISSIONS.map(m => `
+        <div class="pitem" data-mission="${m.id}">
+          <div style="height:130px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">
+            🎖️ ${m.title}
+          </div>
+          <div style="margin-top:.35rem">
+            <div style="font-weight:600">${m.subtitle}</div>
+            <div style="color:var(--muted);font-size:.9rem;margin-top:.25rem">${m.note}</div>
+          </div>
+          <button class="btn" data-cta="${m.id}">Join Mission</button>
+        </div>
+      `).join("");
+    }
+
+    function render(){
+      const st = getState();
+      [...tabs.querySelectorAll("button")].forEach(b=>{
+        b.style.borderColor = (b.dataset.cat===st.cat) ? "#6366f1" : "var(--border)";
+      });
+
+      if (st.cat === "Mission Patches"){
+        renderMissions(); return;
+      } else {
+        pager.style.display = "";
+        searchInput.parentElement.style.display = "";
+      }
+
+      searchInput.value = st.q; sortSel.value = st.sort;
+      const filtered = applyFilters(PRODUCTS, st);
+      const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      const cur = Math.min(st.page, pages);
+      const start = (cur-1) * PAGE_SIZE;
+      const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+      renderGrid(pageItems);
+      renderPager(filtered.length, st);
+    }
+
+    tabs.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-cat]"); if(!btn) return;
+      setState({ cat: btn.dataset.cat, page: 1 });
+    });
+    pager.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-page]"); if(!btn) return;
+      setState({ page: parseInt(btn.dataset.page,10) });
+    });
+    searchInput.addEventListener("input", (e)=> setState({ q: e.target.value, page: 1 }));
+    sortSel.addEventListener("change", (e)=> setState({ sort: e.target.value, page: 1 }));
+
+    /* Cart */
+    const cartKey = 'rcj.cart';
+    function loadCart(){ try{ return JSON.parse(localStorage.getItem(cartKey) || '[]'); }catch{return []} }
+    function saveCart(items){ localStorage.setItem(cartKey, JSON.stringify(items)); updateCartUI(); }
+    function addToCart(id){ const items=loadCart(); const f=items.find(x=>x.id===id); if(f) f.qty++; else items.push({id, qty:1}); saveCart(items); }
+    function updateCartUI(){
+      const cartItems = document.getElementById('cartItems');
+      const cartTotal = document.getElementById('cartTotal');
+      const cartCount = document.getElementById('cartCount');
+      const items = loadCart().map(it=>{ const p = PRODUCTS.find(x=>x.id===it.id); return {...it, ...p}; });
+      if (cartItems){
+        cartItems.innerHTML = items.map(it=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:.5rem 0">
+            <div><div>${it.title}</div><div class="badge">Qty: ${it.qty}</div></div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <strong>$${(it.price*it.qty).toFixed(2)}</strong>
+              <button class="btn-ghost btn" data-remove="${it.id}">Remove</button>
+            </div>
+          </div>`).join('');
+        const total = items.reduce((s,it)=>s+it.price*it.qty,0);
+        if (cartTotal) cartTotal.textContent = total.toFixed(2);
+        const count = items.reduce((s,it)=>s+it.qty,0);
+        if (cartCount) cartCount.textContent = count;
+      }
+    }
+    document.getElementById('product-grid').addEventListener('click', (e)=>{
+      const add = e.target.closest('.add'); if(!add) return;
+      const card = e.target.closest('.pitem'); addToCart(card.getAttribute('data-id'));
+      const t=document.getElementById('transition'); if(t){t.classList.add('active'); setTimeout(()=>t.classList.remove('active'), 500);}
+    });
+    const cartItemsEl = document.getElementById('cartItems');
+    if (cartItemsEl){
+      cartItemsEl.addEventListener('click', (e)=>{
+        const rm = e.target.getAttribute('data-remove'); if(!rm) return;
+        let items = loadCart().filter(x=>x.id!==rm); saveCart(items);
+      });
+    }
+    document.getElementById('cartBtn').onclick = ()=> document.getElementById('cartDrawer').classList.add('open');
+    document.getElementById('closeCartBtn').onclick = ()=> document.getElementById('cartDrawer').classList.remove('open');
+    document.getElementById('checkoutBtn').onclick = ()=> alert('Checkout is simulated in this demo.');
+
+    /* Initial render */
+    render(); updateCartUI();
+
+    /* HERO rotation */
+    (function(){
+      const hero = document.getElementById("hero");
+      if (!hero) return;
+      const titleEl = hero.querySelector("h1");
+      const descEl  = hero.querySelector("p");
+      const byPop = PRODUCTS.slice().sort((a,b)=>b.popular - a.popular);
+      const top5  = byPop.slice(0,5);
+      const deals = PRODUCTS.filter(p => p.price <= 13.5).slice(0,5);
+      const slides = [...top5, ...deals];
+      let i=0;
+      setInterval(()=>{
+        const s = slides[i % slides.length];
+        if (titleEl) titleEl.textContent = s ? s.title : "Rocket City Jerky";
+        if (descEl)  descEl.textContent  = s ? `From $${s.price.toFixed(2)} • ${s.cat}` : "Bold flavors. North Alabama made.";
+        i++;
+      }, 5000);
+    })();
+  })();
+  </script>
+
+  <!-- SpaceFX background (denser stars) -->
+  <script>
+  (function(){
+    const canvas = document.getElementById('bgfx'); if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    let W = canvas.width = innerWidth, H = canvas.height = innerHeight;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const DPR = Math.min(devicePixelRatio || 1, 2);
     canvas.width = W * DPR; canvas.height = H * DPR; ctx.scale(DPR, DPR);
 
-    const STAR_COUNT = reduced ? 120 : 420;
+    const STAR_COUNT = reduced ? 200 : 800;
     const METEOR_RATE = reduced ? 0.0006 : 0.0012;
     const GALAXY_COUNT = reduced ? 2 : 4;
     const GRAVITY_RADIUS = 140;
@@ -445,78 +380,18 @@
     addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; });
     addEventListener('mouseleave', () => { mouse.active = false; });
 
-    const stars = [];
-    const meteors = [];
-    const galaxies = [];
-    let iss;
+    const stars = []; const meteors = []; const galaxies = []; let iss;
+    const rand=(a,b)=>Math.random()*(b-a)+a;
+    function makeStar(){ const z=Math.random()*0.8+0.2; return {x:Math.random()*W,y:Math.random()*H,z,size:rand(0.6,1.6)*z,vx:(Math.random()*0.3+0.05)*z,vy:(Math.random()*0.2-0.1)*z,tw:Math.random()*Math.PI*2};}
+    function makeGalaxy(){ const r=rand(120,220); return {x:Math.random()*W,y:Math.random()*H*0.7,r,rot:rand(0,Math.PI*2),vr:rand(-0.0004,0.0004),hue:rand(200,320),alpha:rand(0.06,0.12)};}
+    function spawnMeteor(){ const top=Math.random()<0.5; const x=rand(-100,W*0.2); const y=top?rand(-60,H*0.3):rand(H*0.7,H+60); const s=rand(6,10); const a=top?rand(Math.PI*0.1,Math.PI*0.3):rand(-Math.PI*0.3,-Math.PI*0.1); meteors.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(0.6,1.2),age:0});}
+    function makeISS(){ return {t:0,speed:reduced?0.00003:0.00006,size:24,path:(t)=>({x:W*(0.1+0.8*((1-Math.cos(2*Math.PI*t))/2)),y:H*(0.3+0.2*Math.sin(4*Math.PI*t))})};}
+    for(let i=0;i<STAR_COUNT;i++) stars.push(makeStar()); for(let i=0;i<GALAXY_COUNT;i++) galaxies.push(makeGalaxy()); iss=makeISS();
 
-    function rand(min, max){ return Math.random() * (max - min) + min; }
-
-    function makeStar(){
-      const z = Math.random() * 0.8 + 0.2;
-      return { x: Math.random()*W, y: Math.random()*H, z, size: rand(0.6,1.6)*z, vx: (Math.random()*0.3+0.05)*z, vy: (Math.random()*0.2-0.1)*z, tw: Math.random()*Math.PI*2 };
-    }
-
-    function makeGalaxy(){
-      const r = rand(120,220);
-      return { x:Math.random()*W, y:Math.random()*H*0.7, r, rot:rand(0,Math.PI*2), vr:rand(-0.0004,0.0004), hue:rand(200,320), alpha:rand(0.06,0.12) };
-    }
-
-    function spawnMeteor(){
-      const fromTop = Math.random() < 0.5;
-      const x = rand(-100, W*0.2);
-      const y = fromTop ? rand(-60,H*0.3) : rand(H*0.7,H+60);
-      const speed = rand(6,10);
-      const angle = fromTop ? rand(Math.PI*0.1,Math.PI*0.3) : rand(-Math.PI*0.3,-Math.PI*0.1);
-      meteors.push({ x,y,vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:rand(0.6,1.2), age:0 });
-    }
-
-    function makeISS(){
-      return { t:0, speed:reduced?0.00003:0.00006, size:24,
-        path:(t)=>({ x: W*(0.1+0.8*((1-Math.cos(2*Math.PI*t))/2)), y: H*(0.3+0.2*Math.sin(4*Math.PI*t)) })
-      };
-    }
-
-    for (let i=0;i<STAR_COUNT;i++) stars.push(makeStar());
-    for (let i=0;i<GALAXY_COUNT;i++) galaxies.push(makeGalaxy());
-    iss = makeISS();
-
-    function drawStar(s){
-      s.tw += 0.05; const tw = 0.7+0.3*Math.sin(s.tw+s.z*5);
-      ctx.globalAlpha = 0.6*s.z*tw; ctx.fillStyle="#fff";
-      ctx.fillRect(s.x,s.y,s.size,s.size); ctx.globalAlpha=1;
-    }
-
-    function drawGalaxy(g){
-      g.rot += g.vr;
-      const grad = ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);
-      grad.addColorStop(0,`hsla(${g.hue},80%,70%,${g.alpha})`);
-      grad.addColorStop(0.35,`hsla(${g.hue+40},70%,60%,${g.alpha*0.8})`);
-      grad.addColorStop(1,`hsla(${g.hue},90%,50%,0)`);
-      ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(g.rot); ctx.globalCompositeOperation="lighter";
-      ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(0,0,g.r*1.2,g.r*0.7,0,0,Math.PI*2); ctx.fill();
-      ctx.restore(); ctx.globalCompositeOperation="source-over";
-    }
-
-    function drawMeteor(m,dt){
-      m.age += dt; ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(Math.atan2(m.vy,m.vx));
-      const len=80; const grad=ctx.createLinearGradient(0,0,-len,0);
-      grad.addColorStop(0,"rgba(255,255,255,0.95)"); grad.addColorStop(1,"rgba(255,180,120,0)");
-      ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-len,0); ctx.stroke();
-      ctx.restore();
-    }
-
-    function drawISS(o){
-      const p=o.path(o.t); ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.sin(o.t*Math.PI*2)*0.1);
-      ctx.fillStyle="#cfd8ff"; ctx.strokeStyle="#9fb3ff"; ctx.lineWidth=1.2;
-      ctx.fillRect(-o.size*0.15,-o.size*0.15,o.size*0.3,o.size*0.3);
-      ctx.fillStyle="#7aa6ff";
-      ctx.fillRect(-o.size*0.9,-o.size*0.12,o.size*0.55,o.size*0.24);
-      ctx.fillRect(o.size*0.35,-o.size*0.12,o.size*0.55,o.size*0.24);
-      ctx.beginPath(); ctx.moveTo(-o.size*0.35,-o.size*0.1); ctx.lineTo(o.size*0.35,-o.size*0.1);
-      ctx.moveTo(-o.size*0.35,o.size*0.1); ctx.lineTo(o.size*0.35,o.size*0.1); ctx.stroke();
-      ctx.restore();
-    }
+    function drawStar(s){ s.tw+=0.05; const tw=0.7+0.3*Math.sin(s.tw+s.z*5); ctx.globalAlpha=0.6*s.z*tw; ctx.fillStyle="#fff"; ctx.fillRect(s.x,s.y,s.size,s.size); ctx.globalAlpha=1;}
+    function drawGalaxy(g){ g.rot+=g.vr; const grad=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r); grad.addColorStop(0,`hsla(${g.hue},80%,70%,${g.alpha})`); grad.addColorStop(0.35,`hsla(${g.hue+40},70%,60%,${g.alpha*0.8})`); grad.addColorStop(1,`hsla(${g.hue},90%,50%,0)`); ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(g.rot); ctx.globalCompositeOperation="lighter"; ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(0,0,g.r*1.2,g.r*0.7,0,0,Math.PI*2); ctx.fill(); ctx.restore(); ctx.globalCompositeOperation="source-over";}
+    function drawMeteor(m,dt){ m.age+=dt; ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(Math.atan2(m.vy,m.vx)); const len=80; const grad=ctx.createLinearGradient(0,0,-len,0); grad.addColorStop(0,"rgba(255,255,255,0.95)"); grad.addColorStop(1,"rgba(255,180,120,0)"); ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-len,0); ctx.stroke(); ctx.restore();}
+    function drawISS(o){ const p=o.path(o.t); ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.sin(o.t*Math.PI*2)*0.1); ctx.fillStyle="#cfd8ff"; ctx.strokeStyle="#9fb3ff"; ctx.lineWidth=1.2; ctx.fillRect(-o.size*0.15,-o.size*0.15,o.size*0.3,o.size*0.3); ctx.fillStyle="#7aa6ff"; ctx.fillRect(-o.size*0.9,-o.size*0.12,o.size*0.55,o.size*0.24); ctx.fillRect(o.size*0.35,-o.size*0.12,o.size*0.55,o.size*0.24); ctx.beginPath(); ctx.moveTo(-o.size*0.35,-o.size*0.1); ctx.lineTo(o.size*0.35,-o.size*0.1); ctx.moveTo(-o.size*0.35,o.size*0.1); ctx.lineTo(o.size*0.35,o.size*0.1); ctx.stroke(); ctx.restore();}
 
     let last=performance.now();
     function frame(now){
@@ -526,16 +401,11 @@
       for(const s of stars){
         s.x+=s.vx; s.y+=s.vy;
         if(s.x>W+5) s.x=-5; if(s.y<-5) s.y=H+5; if(s.y>H+5) s.y=-5;
-        if(mouse.active){
-          const dx=mouse.x-s.x,dy=mouse.y-s.y,d2=dx*dx+dy*dy;
-          if(d2<GRAVITY_RADIUS*GRAVITY_RADIUS){const d=Math.sqrt(d2)||1;
-            s.vx+=(dx/d)*GRAVITY_STRENGTH*s.z; s.vy+=(dy/d)*GRAVITY_STRENGTH*s.z; }
-        }
+        if(mouse.active){ const dx=mouse.x-s.x, dy=mouse.y-s.y, d2=dx*dx+dy*dy; if(d2<GRAVITY_RADIUS*GRAVITY_RADIUS){ const d=Math.sqrt(d2)||1; s.vx+=(dx/d)*GRAVITY_STRENGTH*s.z; s.vy+=(dy/d)*GRAVITY_STRENGTH*s.z; } }
         drawStar(s); s.vx*=0.998; s.vy*=0.998;
       }
       if(!reduced && Math.random()<METEOR_RATE) spawnMeteor();
-      for(let i=meteors.length-1;i>=0;i--){const m=meteors[i]; m.x+=m.vx; m.y+=m.vy; drawMeteor(m,dt);
-        if(m.age>m.life||m.x>W+120||m.x<-120||m.y<-120||m.y>H+120) meteors.splice(i,1);}
+      for(let i=meteors.length-1;i>=0;i--){const m=meteors[i]; m.x+=m.vx; m.y+=m.vy; drawMeteor(m,dt); if(m.age>m.life||m.x>W+120||m.x<-120||m.y<-120||m.y>H+120) meteors.splice(i,1);}
       iss.t=(iss.t+iss.speed)%1; drawISS(iss);
       if(!reduced) requestAnimationFrame(frame);
     }
@@ -544,3 +414,5 @@
     addEventListener("click",()=>{if(!reduced) spawnMeteor();});
   })();
   </script>
+</body>
+</html>
