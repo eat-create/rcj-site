@@ -132,10 +132,35 @@
       <div class="rail" id="rail-scifi"></div>
     </section>
 
-    <section class="row" id="shop" aria-label="Shop">
-      <h2>Shop Rocket City Jerky</h2>
-      <div class="grid" id="product-grid"></div>
-    </section>
+<section class="row" id="shop" aria-label="Shop">
+  <h2>Shop Rocket City Jerky</h2>
+
+  <!-- Category tabs -->
+  <div id="cat-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0 1rem">
+    <button class="btn-ghost btn" data-cat="">All</button>
+    <button class="btn-ghost btn" data-cat="Space Craft">Space Craft</button>
+    <button class="btn-ghost btn" data-cat="Galaxies">Galaxies (mild)</button>
+    <button class="btn-ghost btn" data-cat="Stars">Stars (intense)</button>
+  </div>
+
+  <!-- Search + sort row -->
+  <div style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0 1rem">
+    <input class="input" id="shop-search" placeholder="Search flavors…" aria-label="Search products" />
+    <select class="input" id="shop-sort" aria-label="Sort">
+      <option value="popular">Sort: Popular</option>
+      <option value="price-asc">Price: Low → High</option>
+      <option value="price-desc">Price: High → Low</option>
+      <option value="name-asc">Name: A → Z</option>
+    </select>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid" id="product-grid"></div>
+
+  <!-- Pagination -->
+  <div id="pager" style="display:flex;justify-content:center;gap:.35rem;margin-top:1rem"></div>
+</section>
+
   </div>
 
   <!-- Cart Drawer -->
@@ -175,6 +200,221 @@
   <script>
     // (existing demo logic for rails, shop, cart goes here… keep your original script block)
   </script>
+<!-- Catalog (categories + pagination) -->
+<script>
+(function(){
+  // ---- DATA ----------------------------------------------------
+  // Categories:
+  //  - Space Craft (unique flavors)
+  //  - Galaxies (mild heat)
+  //  - Stars (intense heat)
+
+  const PRODUCTS = [
+    // Space Craft — unique flavors
+    { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)",   price:12.99, cat:"Space Craft", heat:"mild",    popular:95 },
+    { id:"sc-hs-8",   title:"Honey Sriracha (8oz)",                 price:13.99, cat:"Space Craft", heat:"medium",  popular:90 },
+    { id:"sc-tc-8",   title:"Teriyaki Comet (8oz)",                 price:12.99, cat:"Space Craft", heat:"mild",    popular:85 },
+    { id:"sc-gg-12",  title:"Galactic Garlic (12oz)",               price:17.99, cat:"Space Craft", heat:"mild",    popular:80 },
+    { id:"sc-ssh-8",  title:"Stellar Sweet Heat (8oz)",             price:14.99, cat:"Space Craft", heat:"medium",  popular:78 },
+    { id:"sc-cc-8",   title:"Cosmic Cajun (8oz)",                   price:13.99, cat:"Space Craft", heat:"medium",  popular:75 },
+    { id:"sc-sn-8",   title:"Supernova BBQ (8oz)",                  price:14.99, cat:"Space Craft", heat:"mild",    popular:72 },
+    { id:"sc-ml-8",   title:"Meteor Lime (8oz)",                    price:13.99, cat:"Space Craft", heat:"medium",  popular:70 },
+    { id:"sc-aa-8",   title:"Andromeda Applewood (8oz)",            price:15.99, cat:"Space Craft", heat:"mild",    popular:68 },
+    { id:"sc-vv-8",   title:"Voyager Vinegar (8oz)",                price:13.99, cat:"Space Craft", heat:"mild",    popular:66 },
+
+    // Galaxies — mild heat
+    { id:"gal-mh-12", title:"Mango Habanero (12oz)",                price:16.99, cat:"Galaxies",    heat:"mild",    popular:98 },
+    { id:"gal-ao-8",  title:"Astro Original (8oz)",                 price:12.99, cat:"Galaxies",    heat:"mild",    popular:88 },
+    { id:"gal-ss-8",  title:"Saturn Smoke (8oz)",                   price:14.99, cat:"Galaxies",    heat:"mild",    popular:76 },
+    { id:"gal-ll-8",  title:"Lunar Lemon (8oz)",                    price:13.99, cat:"Galaxies",    heat:"mild",    popular:74 },
+    { id:"gal-ao-12", title:"Astro Original (12oz)",                price:18.99, cat:"Galaxies",    heat:"mild",    popular:73 },
+    { id:"gal-gs-8",  title:"Ganymede Sesame (8oz)",                price:13.99, cat:"Galaxies",    heat:"mild",    popular:69 },
+    { id:"gal-pp-8",  title:"Pluto Peppercorn (8oz)",               price:13.49, cat:"Galaxies",    heat:"mild",    popular:67 },
+    { id:"gal-vm-8",  title:"Venus Maple (8oz)",                    price:14.49, cat:"Galaxies",    heat:"mild",    popular:65 },
+
+    // Stars — intense heat
+    { id:"st-bhh-8",  title:"Black Hole Hot (8oz)",                 price:15.99, cat:"Stars",       heat:"intense", popular:97 },
+    { id:"st-ij-8",   title:"Ion Jalapeño (8oz)",                   price:13.99, cat:"Stars",       heat:"intense", popular:84 },
+    { id:"st-ccp-8",  title:"Comet Chipotle (8oz)",                 price:14.99, cat:"Stars",       heat:"intense", popular:83 },
+    { id:"st-nn-12",  title:"Nebula Nitro (12oz)",                  price:18.99, cat:"Stars",       heat:"intense", popular:81 },
+    { id:"st-fpc-8",  title:"Five Peppers Collide (8oz)",           price:14.99, cat:"Stars",       heat:"intense", popular:79 },
+    { id:"st-mh-8",   title:"Magma Habanero (8oz)",                 price:15.49, cat:"Stars",       heat:"intense", popular:77 },
+    { id:"st-ts-8",   title:"Tachyon Scorpion (8oz)",               price:16.49, cat:"Stars",       heat:"intense", popular:75 },
+    { id:"st-dr-8",   title:"Dragon Reentry (8oz)",                 price:16.99, cat:"Stars",       heat:"intense", popular:74 },
+  ];
+
+  const PAGE_SIZE = 8;
+
+  // ---- DOM -----------------------------------------------------
+  const grid = document.getElementById("product-grid");
+  const pager = document.getElementById("pager");
+  const tabs = document.getElementById("cat-tabs");
+  const searchInput = document.getElementById("shop-search");
+  const sortSel = document.getElementById("shop-sort");
+
+  // ---- ROUTER (URL → state) -----------------------------------
+  function getState(){
+    const url = new URL(location.href);
+    return {
+      cat: url.searchParams.get("cat") || "",
+      q: url.searchParams.get("q") || "",
+      sort: url.searchParams.get("sort") || "popular",
+      page: Math.max(1, parseInt(url.searchParams.get("page") || "1", 10))
+    };
+  }
+  function setState(next){
+    const url = new URL(location.href);
+    for (const [k,v] of Object.entries(next)){
+      if (v==="" || v==null) url.searchParams.delete(k);
+      else url.searchParams.set(k, String(v));
+    }
+    history.pushState({}, "", url);
+    render();
+  }
+  window.addEventListener("popstate", render);
+
+  // ---- DATA → UI ----------------------------------------------
+  function applyFilters(items, st){
+    let out = items.slice();
+    if (st.cat) out = out.filter(p => p.cat === st.cat);
+    if (st.q) {
+      const q = st.q.toLowerCase();
+      out = out.filter(p => p.title.toLowerCase().includes(q));
+    }
+    switch (st.sort){
+      case "price-asc":  out.sort((a,b)=>a.price-b.price); break;
+      case "price-desc": out.sort((a,b)=>b.price-a.price); break;
+      case "name-asc":   out.sort((a,b)=>a.title.localeCompare(b.title)); break;
+      default:           out.sort((a,b)=>b.popular-a.popular);
+    }
+    return out;
+  }
+
+  function renderGrid(items){
+    grid.innerHTML = items.map(p => `
+      <div class="pitem" data-id="${p.id}">
+        <div style="height:130px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">${p.cat}</div>
+        <div style="display:flex;justify-content:space-between;gap:.5rem">
+          <div style="font-weight:600">${p.title}</div>
+        </div>
+        <div class="price">$${p.price.toFixed(2)}</div>
+        <div class="badge">Heat: ${p.heat}</div>
+        <button class="btn add">Add to Cart</button>
+      </div>
+    `).join("");
+  }
+
+  function renderPager(total, st){
+    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const cur = Math.min(st.page, pages);
+    let html = "";
+    const mk = (label, page, disabled=false, active=false) =>
+      `<button class="btn-ghost btn" data-page="${page}" ${disabled?"disabled":""} style="${active?"border-color:#6366f1":""}">${label}</button>`;
+
+    html += mk("«", 1, cur===1);
+    html += mk("‹", Math.max(1, cur-1), cur===1);
+    for (let i=1;i<=pages;i++){
+      const show = (i<=2) || (i>pages-2) || (Math.abs(i-cur)<=1);
+      if (i===3 && cur>4) { html += `<span class="badge">…</span>`; continue; }
+      if (i===pages-2 && cur<pages-3) { html += `<span class="badge">…</span>`; continue; }
+      if (show) html += mk(String(i), i, false, i===cur);
+    }
+    html += mk("›", Math.min(pages, cur+1), cur===pages);
+    html += mk("»", pages, cur===pages);
+    pager.innerHTML = html;
+  }
+
+  function render(){
+    const st = getState();
+
+    // Sync controls
+    [...tabs.querySelectorAll("button")].forEach(b=>{
+      b.classList.toggle("btn", true);
+      b.classList.toggle("btn-ghost", true);
+      b.style.borderColor = (b.dataset.cat===st.cat) ? "#6366f1" : "var(--border)";
+    });
+    searchInput.value = st.q;
+    sortSel.value = st.sort;
+
+    const filtered = applyFilters(PRODUCTS, st);
+    const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const cur = Math.min(st.page, pages);
+    const start = (cur-1) * PAGE_SIZE;
+    const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+    renderGrid(pageItems);
+    renderPager(filtered.length, st);
+  }
+
+  // ---- EVENTS --------------------------------------------------
+  tabs.addEventListener("click", (e)=>{
+    const btn = e.target.closest("button[data-cat]");
+    if (!btn) return;
+    setState({ cat: btn.dataset.cat, page: 1 });
+  });
+  pager.addEventListener("click", (e)=>{
+    const btn = e.target.closest("button[data-page]");
+    if (!btn) return;
+    setState({ page: parseInt(btn.dataset.page,10) });
+  });
+  searchInput.addEventListener("input", (e)=>{
+    setState({ q: e.target.value, page: 1 });
+  });
+  sortSel.addEventListener("change", (e)=>{
+    setState({ sort: e.target.value, page: 1 });
+  });
+
+  // Reuse existing cart code if present:
+  const cartKey = 'spaceflix.cart';
+  function loadCart(){ try{ return JSON.parse(localStorage.getItem(cartKey) || '[]'); }catch{return []} }
+  function saveCart(items){ localStorage.setItem(cartKey, JSON.stringify(items)); updateCartUI(); }
+  function addToCart(id){ const items=loadCart(); const found=items.find(x=>x.id===id);
+    if(found) found.qty++; else items.push({id, qty:1});
+    saveCart(items);
+  }
+  function updateCartUI(){
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    const cartCount = document.getElementById('cartCount');
+    const items = loadCart().map(it=>{
+      const p = PRODUCTS.find(x=>x.id===it.id); return {...it, ...p};
+    });
+    if (cartItems){
+      cartItems.innerHTML = items.map(it=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:.5rem 0">
+          <div><div>${it.title}</div><div class="badge">Qty: ${it.qty}</div></div>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <strong>$${(it.price*it.qty).toFixed(2)}</strong>
+            <button class="btn-ghost btn" data-remove="${it.id}">Remove</button>
+          </div>
+        </div>
+      `).join('');
+      const total = items.reduce((s,it)=>s+it.price*it.qty,0);
+      if (cartTotal) cartTotal.textContent = total.toFixed(2);
+      const count = items.reduce((s,it)=>s+it.qty,0);
+      if (cartCount) cartCount.textContent = count;
+    }
+  }
+  document.getElementById('product-grid').addEventListener('click', (e)=>{
+    const add = e.target.closest('.add'); if(!add) return;
+    const card = e.target.closest('.pitem'); addToCart(card.getAttribute('data-id'));
+    const t=document.getElementById('transition'); if(t){t.classList.add('active'); setTimeout(()=>t.classList.remove('active'), 500);}
+  });
+  const cartItemsEl = document.getElementById('cartItems');
+  if (cartItemsEl){
+    cartItemsEl.addEventListener('click', (e)=>{
+      const rm = e.target.getAttribute('data-remove');
+      if(!rm) return;
+      let items = loadCart().filter(x=>x.id!==rm);
+      saveCart(items);
+    });
+  }
+
+  // Initialize
+  render();
+  updateCartUI();
+})();
+</script>
 
   <!-- SpaceFX background -->
   <script>
@@ -182,3 +422,125 @@
   </script>
 </body>
 </html>
+  <!-- SpaceFX background: stars, galaxies, meteors, ISS -->
+  <script>
+  (function(){
+    const canvas = document.getElementById('bgfx');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    let W = canvas.width = innerWidth;
+    let H = canvas.height = innerHeight;
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DPR = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = W * DPR; canvas.height = H * DPR; ctx.scale(DPR, DPR);
+
+    const STAR_COUNT = reduced ? 120 : 420;
+    const METEOR_RATE = reduced ? 0.0006 : 0.0012;
+    const GALAXY_COUNT = reduced ? 2 : 4;
+    const GRAVITY_RADIUS = 140;
+    const GRAVITY_STRENGTH = 0.04;
+
+    const mouse = { x: W * 0.5, y: H * 0.5, active: false };
+    addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; });
+    addEventListener('mouseleave', () => { mouse.active = false; });
+
+    const stars = [];
+    const meteors = [];
+    const galaxies = [];
+    let iss;
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    function makeStar(){
+      const z = Math.random() * 0.8 + 0.2;
+      return { x: Math.random()*W, y: Math.random()*H, z, size: rand(0.6,1.6)*z, vx: (Math.random()*0.3+0.05)*z, vy: (Math.random()*0.2-0.1)*z, tw: Math.random()*Math.PI*2 };
+    }
+
+    function makeGalaxy(){
+      const r = rand(120,220);
+      return { x:Math.random()*W, y:Math.random()*H*0.7, r, rot:rand(0,Math.PI*2), vr:rand(-0.0004,0.0004), hue:rand(200,320), alpha:rand(0.06,0.12) };
+    }
+
+    function spawnMeteor(){
+      const fromTop = Math.random() < 0.5;
+      const x = rand(-100, W*0.2);
+      const y = fromTop ? rand(-60,H*0.3) : rand(H*0.7,H+60);
+      const speed = rand(6,10);
+      const angle = fromTop ? rand(Math.PI*0.1,Math.PI*0.3) : rand(-Math.PI*0.3,-Math.PI*0.1);
+      meteors.push({ x,y,vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:rand(0.6,1.2), age:0 });
+    }
+
+    function makeISS(){
+      return { t:0, speed:reduced?0.00003:0.00006, size:24,
+        path:(t)=>({ x: W*(0.1+0.8*((1-Math.cos(2*Math.PI*t))/2)), y: H*(0.3+0.2*Math.sin(4*Math.PI*t)) })
+      };
+    }
+
+    for (let i=0;i<STAR_COUNT;i++) stars.push(makeStar());
+    for (let i=0;i<GALAXY_COUNT;i++) galaxies.push(makeGalaxy());
+    iss = makeISS();
+
+    function drawStar(s){
+      s.tw += 0.05; const tw = 0.7+0.3*Math.sin(s.tw+s.z*5);
+      ctx.globalAlpha = 0.6*s.z*tw; ctx.fillStyle="#fff";
+      ctx.fillRect(s.x,s.y,s.size,s.size); ctx.globalAlpha=1;
+    }
+
+    function drawGalaxy(g){
+      g.rot += g.vr;
+      const grad = ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);
+      grad.addColorStop(0,`hsla(${g.hue},80%,70%,${g.alpha})`);
+      grad.addColorStop(0.35,`hsla(${g.hue+40},70%,60%,${g.alpha*0.8})`);
+      grad.addColorStop(1,`hsla(${g.hue},90%,50%,0)`);
+      ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(g.rot); ctx.globalCompositeOperation="lighter";
+      ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(0,0,g.r*1.2,g.r*0.7,0,0,Math.PI*2); ctx.fill();
+      ctx.restore(); ctx.globalCompositeOperation="source-over";
+    }
+
+    function drawMeteor(m,dt){
+      m.age += dt; ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(Math.atan2(m.vy,m.vx));
+      const len=80; const grad=ctx.createLinearGradient(0,0,-len,0);
+      grad.addColorStop(0,"rgba(255,255,255,0.95)"); grad.addColorStop(1,"rgba(255,180,120,0)");
+      ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-len,0); ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawISS(o){
+      const p=o.path(o.t); ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.sin(o.t*Math.PI*2)*0.1);
+      ctx.fillStyle="#cfd8ff"; ctx.strokeStyle="#9fb3ff"; ctx.lineWidth=1.2;
+      ctx.fillRect(-o.size*0.15,-o.size*0.15,o.size*0.3,o.size*0.3);
+      ctx.fillStyle="#7aa6ff";
+      ctx.fillRect(-o.size*0.9,-o.size*0.12,o.size*0.55,o.size*0.24);
+      ctx.fillRect(o.size*0.35,-o.size*0.12,o.size*0.55,o.size*0.24);
+      ctx.beginPath(); ctx.moveTo(-o.size*0.35,-o.size*0.1); ctx.lineTo(o.size*0.35,-o.size*0.1);
+      ctx.moveTo(-o.size*0.35,o.size*0.1); ctx.lineTo(o.size*0.35,o.size*0.1); ctx.stroke();
+      ctx.restore();
+    }
+
+    let last=performance.now();
+    function frame(now){
+      const dt=Math.min((now-last)/1000,0.033); last=now;
+      ctx.clearRect(0,0,W,H);
+      galaxies.forEach(drawGalaxy);
+      for(const s of stars){
+        s.x+=s.vx; s.y+=s.vy;
+        if(s.x>W+5) s.x=-5; if(s.y<-5) s.y=H+5; if(s.y>H+5) s.y=-5;
+        if(mouse.active){
+          const dx=mouse.x-s.x,dy=mouse.y-s.y,d2=dx*dx+dy*dy;
+          if(d2<GRAVITY_RADIUS*GRAVITY_RADIUS){const d=Math.sqrt(d2)||1;
+            s.vx+=(dx/d)*GRAVITY_STRENGTH*s.z; s.vy+=(dy/d)*GRAVITY_STRENGTH*s.z; }
+        }
+        drawStar(s); s.vx*=0.998; s.vy*=0.998;
+      }
+      if(!reduced && Math.random()<METEOR_RATE) spawnMeteor();
+      for(let i=meteors.length-1;i>=0;i--){const m=meteors[i]; m.x+=m.vx; m.y+=m.vy; drawMeteor(m,dt);
+        if(m.age>m.life||m.x>W+120||m.x<-120||m.y<-120||m.y>H+120) meteors.splice(i,1);}
+      iss.t=(iss.t+iss.speed)%1; drawISS(iss);
+      if(!reduced) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    addEventListener("resize",()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(1,0,0,1,0,0);ctx.scale(DPR,DPR);});
+    addEventListener("click",()=>{if(!reduced) spawnMeteor();});
+  })();
+  </script>
