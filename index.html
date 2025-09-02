@@ -97,6 +97,8 @@
 
     <!-- HERO -->
     <section class="hero" aria-label="Featured" id="hero">
+      <!-- Realistic Planet Fly-by -->
+<canvas id="planetsfx" aria-hidden="true"></canvas>
       <div class="hero-gradient"></div>
       <div class="hero-inner">
         <div>
@@ -537,6 +539,164 @@
     window.triggerSmoke = triggerSmoke;
   })();
   </script>
+<!-- PlanetsFX: realistic rotating planets that drift across the hero -->
+<script>
+(function(){
+  const canvas = document.getElementById('planetsfx');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  let W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    const hero = document.getElementById('hero');
+    if(!hero) return;
+    const rect = hero.getBoundingClientRect();
+    W = canvas.width  = Math.floor(rect.width  * DPR);
+    H = canvas.height = Math.floor(rect.height * DPR);
+    canvas.style.width  = rect.width  + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(DPR, DPR);
+  }
+  addEventListener('resize', resize); resize();
+
+  // --- Texture sources (public NASA/SpaceX style). You can swap to your own textures anytime.
+  // Square-ish textures work best. Keep file sizes reasonable (<1MB).
+  const textures = [
+    // Mars
+    'https://images-assets.nasa.gov/image/PIA00407/PIA00407~orig.jpg',
+    // Earth night/day montage (for subtle detail)
+    'https://upload.wikimedia.org/wikipedia/commons/0/02/Blue_Marble_Eastern_Hemisphere.jpg',
+    // Jupiter
+    'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg'
+  ];
+
+  // Load images
+  function load(src){ return new Promise((resolve,reject)=>{ const i=new Image(); i.crossOrigin='anonymous'; i.onload=()=>resolve(i); i.onerror=reject; i.src=src; }); }
+  Promise.all(textures.map(load)).then((imgs)=>start(imgs)).catch(()=>{/* fail silently */});
+
+  function start(imgs){
+    // Build planet instances
+    const planets = [
+      makePlanet(imgs[0], 160, 0.014,  0.22, 0.58,  0.18), // Mars
+      makePlanet(imgs[1], 120, 0.018,  0.68, 0.40, -0.12), // Earth
+      makePlanet(imgs[2], 220, 0.010, -0.10, 0.70,  0.08)  // Jupiter (starts off-canvas left)
+    ];
+
+    let last = performance.now();
+    function frame(now){
+      if (!canvas.isConnected) return; // in case hero unmounts
+      const dt = Math.min((now - last)/1000, 0.033); last = now;
+
+      // Clear
+      ctx.clearRect(0,0,W/DPR,H/DPR);
+
+      // Draw each planet
+      for (const p of planets){
+        updatePlanet(p, dt);
+        drawPlanet(p);
+      }
+
+      if(!reduced) requestAnimationFrame(frame);
+    }
+    if(!reduced) requestAnimationFrame(frame);
+    else { // draw a static frame for reduced motion
+      planets.forEach(drawPlanet);
+    }
+  }
+
+  // Make a planet
+  function makePlanet(img, radius, spin, xNorm, yNorm, driftX){
+    // xNorm,yNorm are relative positions on hero (0..1)
+    const planet = {
+      img,
+      r: radius,             // px at 1x (we draw in CSS px, DPR handled by context scale)
+      spin,                  // radians per sec
+      angle: Math.random()*Math.PI*2,
+      // position in CSS pixels (not DPR)
+      x: xNorm * (canvas.width / DPR),
+      y: yNorm * (canvas.height/ DPR),
+      // drift across screen (px/sec)
+      vx: driftX * 40,       // slow pan looks cinematic
+      // lighting
+      lightDir: [-0.6, -0.1], // normalized light (from top-left)
+      // parallax wobble
+      wobble: 6 + Math.random()*8,
+      wobbleT: Math.random()*Math.PI*2
+    };
+    return planet;
+  }
+
+  function updatePlanet(p, dt){
+    p.angle += p.spin * (dt*60/60); // keep constant-ish speed
+    p.x     += p.vx   * dt;
+    p.wobbleT += dt*0.7;
+    // wrap horizontally with slight vertical jog for life
+    const viewW = canvas.width / DPR, viewH = canvas.height / DPR;
+    if (p.x < -p.r*1.5) { p.x = viewW + p.r*1.5; p.y = clamp(0.25*viewH, 0.8*viewH, p.y + (Math.random()*120-60)); }
+    if (p.x > viewW + p.r*1.5) { p.x = -p.r*1.5; p.y = clamp(0.25*viewH, 0.8*viewH, p.y + (Math.random()*120-60)); }
+  }
+
+  function clamp(min,max,v){ return Math.max(min, Math.min(max, v)); }
+
+  // Draw a textured, shaded “sphere” in 2D:
+  // 1) clip a circular path
+  // 2) paint a horizontally “rotated” texture by shifting its x offset
+  // 3) multiply a radial vignette and a directional light to give volume
+  function drawPlanet(p){
+    const ctxPx = ctx; // we already scaled by DPR at resize
+
+    const x = p.x + Math.sin(p.wobbleT)*p.wobble*0.4;
+    const y = p.y + Math.cos(p.wobbleT*0.7)*p.wobble*0.25;
+    const r = p.r;
+
+    // 1) Clip a circle
+    ctxPx.save();
+    ctxPx.beginPath();
+    ctxPx.arc(x, y, r, 0, Math.PI*2);
+    ctxPx.closePath();
+    ctxPx.clip();
+
+    // 2) Paint rotated texture by shifting the source x offset
+    const img = p.img;
+    if (img && img.width){
+      // We “spin” by scrolling the texture horizontally
+      const offset = Math.floor((p.angle/(Math.PI*2)) * img.width) % img.width;
+      // Draw twice to wrap seamlessly
+      const scale = (r*2) / img.height;           // scale so image height fits diameter
+      const drawW = img.width * scale;
+      const drawH = img.height * scale;
+      const left  = x - r - drawW + (offset*scale);
+      ctxPx.drawImage(img, left,        y - r, drawW, drawH);
+      ctxPx.drawImage(img, left+drawW,  y - r, drawW, drawH);
+    }
+
+    // 3a) Vignette to give spherical shading
+    const vignette = ctxPx.createRadialGradient(x, y, r*0.2, x, y, r);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(0,0,0,0.35)');
+    ctxPx.globalCompositeOperation = 'multiply';
+    ctxPx.fillStyle = vignette;
+    ctxPx.beginPath(); ctxPx.arc(x,y,r,0,Math.PI*2); ctxPx.fill();
+
+    // 3b) Directional light: bright rim on the light-facing side
+    const lx = p.lightDir[0], ly = p.lightDir[1];
+    const nx = -lx, ny = -ly; // rim opposite shadow
+    const grad = ctxPx.createLinearGradient(x - nx*r, y - ny*r, x + nx*r, y + ny*r);
+    grad.addColorStop(0,   'rgba(255,255,255,0.35)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.10)');
+    grad.addColorStop(1,   'rgba(0,0,0,0.0)');
+    ctxPx.fillStyle = grad;
+    ctxPx.globalCompositeOperation = 'screen';
+    ctxPx.beginPath(); ctxPx.arc(x,y,r,0,Math.PI*2); ctxPx.fill();
+
+    ctxPx.restore();
+    ctxPx.globalCompositeOperation = 'source-over';
+  }
+})();
+</script>
 
   <!-- Starfield background (dense, responsive) -->
   <script>
