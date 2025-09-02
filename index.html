@@ -599,12 +599,17 @@
   Promise.all(textures.map(load)).then((imgs)=>start(imgs)).catch(()=>{/* fail silently */});
 
   function start(imgs){
-    // Build planet instances
-    const planets = [
-      makePlanet(imgs[0], 160, 0.014,  0.22, 0.58,  0.18), // Mars
-      makePlanet(imgs[1], 120, 0.018,  0.68, 0.40, -0.12), // Earth
-      makePlanet(imgs[2], 220, 0.010, -0.10, 0.70,  0.08)  // Jupiter (starts off-canvas left)
-    ];
+// Build planet instances (randomized)
+const planets = Array.from({ length: 5 }, () => {
+  const img = imgs[Math.floor(Math.random() * imgs.length)];
+  const radius = rand(90, 220);                     // 90–220 px
+  const spin   = rand(0.009, 0.020) * (Math.random() < 0.5 ? -1 : 1); // cw/ccw
+  const xNorm  = rand(0.05, 0.95);                  // anywhere across hero
+  const yNorm  = rand(0.25, 0.80);                  // keep in vertical band
+  const driftX = rand(-0.12, 0.12);                 // left or right
+  return makePlanet(img, radius, spin, xNorm, yNorm, driftX);
+});
+
 
     let last = performance.now();
     function frame(now){
@@ -654,11 +659,22 @@
     p.angle += p.spin * (dt*60/60); // keep constant-ish speed
     p.x     += p.vx   * dt;
     p.wobbleT += dt*0.7;
-    // wrap horizontally with slight vertical jog for life
-    const viewW = canvas.width / DPR, viewH = canvas.height / DPR;
-    if (p.x < -p.r*1.5) { p.x = viewW + p.r*1.5; p.y = clamp(0.25*viewH, 0.8*viewH, p.y + (Math.random()*120-60)); }
-    if (p.x > viewW + p.r*1.5) { p.x = -p.r*1.5; p.y = clamp(0.25*viewH, 0.8*viewH, p.y + (Math.random()*120-60)); }
-  }
+// respawn anywhere when off-screen for more variety
+const viewW = canvas.width / DPR, viewH = canvas.height / DPR;
+const off = p.r * 1.6;
+
+if (p.x < -off || p.x > viewW + off) {
+  // new random attributes
+  p.r     = rand(90, 220);
+  p.spin  = rand(0.009, 0.020) * (Math.random() < 0.5 ? -1 : 1);
+  p.vx    = rand(-0.12, 0.12) * 40;
+  p.angle = Math.random() * Math.PI * 2;
+
+  // re-enter from random side to a random position
+  const fromLeft = Math.random() < 0.5;
+  p.x = fromLeft ? -off : viewW + off;
+  p.y = rand(0.25 * viewH, 0.80 * viewH);
+}
 
   function clamp(min,max,v){ return Math.max(min, Math.min(max, v)); }
 
