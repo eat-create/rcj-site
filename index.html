@@ -6,73 +6,120 @@
   <title>Rocket City Jerky • Space-themed, boldly flavored</title>
   <meta name="color-scheme" content="dark" />
   <style>
+    #bgfx{position:fixed;inset:0;z-index:-1;opacity:.3}
+
+/* Planets canvas sits under hero labels, above hero gradient */
+#planetsfx{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;           /* hero text stays above it */
+  pointer-events:none; /* doesn’t block clicks */
+}
+
     :root{
       --bg:#05060a; --panel:rgba(255,255,255,.04); --border:rgba(255,255,255,.12);
-      --text:#fff; --muted:rgba(255,255,255,.72);
+      --text:#fff; --muted:rgba(255,255,255,.7);
       --indigo:#6366f1; --cyan:#06b6d4; --pink:#db2777;
     }
     *{box-sizing:border-box}
     html,body{height:100%;}
     body{margin:0;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; background:var(--bg); color:var(--text);}
     a{color:var(--text);text-decoration:none}
-    button{font:inherit;cursor:pointer}
+    button{font:inherit}
 
     .container{max-width:1200px;margin:0 auto;padding:1.25rem}
-    .navbar{position:sticky;top:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .navbar{position:sticky;top:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;
+      background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
     .nav-left{display:flex;align-items:center;gap:.75rem}
     .brand{font-weight:700;letter-spacing:.08em}
-    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem;border-radius:.5rem;border:1px solid transparent;background:var(--indigo);color:#fff}
+    .nav-link{opacity:.8}
+    .nav-link:hover{opacity:1}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem;border-radius:.5rem;border:1px solid transparent;
+      background:var(--indigo);color:#fff;cursor:pointer;transition:transform .06s ease, background .2s ease}
+    .btn:active{transform:translateY(1px)}
     .btn-ghost{background:transparent;border:1px solid var(--border);color:#fff}
-    .muted{color:var(--muted)}
 
     .hero{position:relative;aspect-ratio:21/9;border:1px solid var(--border);border-radius:12px;overflow:hidden}
     .hero-gradient{position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.7), transparent 60%)}
-    .hero-inner{position:absolute;inset:0;display:grid;place-items:end;padding:2rem;z-index:2}
+    .hero-inner{position:absolute;inset:0;display:grid;place-items:end;padding:2rem}
     .hero h1{font-size:2rem;margin:0 0 .35rem 0}
 
     .row{margin-top:1rem}
     .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}
     .pitem{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:.75rem;display:flex;flex-direction:column;gap:.4rem}
     .price{font-weight:600}
-    .strike{ text-decoration: line-through; opacity:.6 }
 
-    .drawer{position:fixed;right:0;top:0;height:100dvh;width:min(420px,100%);background:#0b0d14;border-left:1px solid var(--border);transform:translateX(100%);transition:transform .25s ease;z-index:40;display:flex;flex-direction:column}
+    /* Cart drawer */
+    .drawer{position:fixed;right:0;top:0;height:100dvh;width:min(420px,100%);background:#0b0d14;border-left:1px solid var(--border);
+      transform:translateX(100%);transition:transform .25s ease;z-index:40;display:flex;flex-direction:column}
     .drawer.open{transform:translateX(0)}
     .drawer header{display:flex;align-items:center;justify-content:space-between;padding:1rem;border-bottom:1px solid var(--border)}
     .drawer main{flex:1;overflow:auto;padding:1rem}
     .drawer footer{padding:1rem;border-top:1px solid var(--border)}
 
+    /* Transition overlay (non-blocking) */
     .transition{pointer-events:none;position:fixed;inset:0;z-index:40;opacity:0;transition:opacity .18s ease}
     #smokefx{width:100%;height:100%;display:block}
-    #bgfx{position:fixed;inset:0;z-index:-1;opacity:.9}
-    #planetsfx{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
 
+    #bgfx{position:fixed;inset:0;z-index:-1;opacity:.9}
     .input{background:transparent;border:1px solid var(--border);border-radius:.5rem;padding:.45rem .6rem;color:#fff}
+/* Planets canvas sits under hero labels, above hero gradient */
+#planetsfx{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;           /* hero text uses higher z-index via normal flow */
+  pointer-events:none; /* never block clicks */
+}
+
+    /* hide unwanted labels */
     .badge{display:none}
 
+    /* Mobile polish */
     @media (max-width: 640px){
       .container{padding:.75rem}
       .hero{aspect-ratio:16/9}
       .hero h1{font-size:1.5rem}
       .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+      .nav-right{display:none}
     }
+    @media (prefers-reduced-motion: reduce){ .transition{transition:none} }
   </style>
 </head>
 <body>
+  <!-- starfield canvas -->
   <canvas id="bgfx" aria-hidden="true"></canvas>
 
+  <!-- navbar -->
   <div class="navbar" role="navigation">
     <div class="nav-left">
-      <a class="brand" href="#">🚀 Rocket City Jerky</a>
-      <a class="btn-ghost btn" href="#shop">Shop</a>
+      <a class="brand" href="#" data-route="home">🚀 Rocket City Jerky</a>
+      <a class="nav-link" href="#" data-route="home">Home</a>
+      <a class="nav-link" href="#shop" data-route="shop">Shop</a>
     </div>
-    <button class="btn-ghost btn" id="cartBtn">Cart <span id="cartCount" class="badge">0</span></button>
+    <div class="nav-right" style="display:flex;align-items:center;gap:.5rem">
+      <button class="btn-ghost btn" id="cartBtn" aria-haspopup="dialog" aria-controls="cartDrawer">Cart <span id="cartCount" class="badge">0</span></button>
+    </div>
   </div>
 
   <div class="container">
+    <!-- Mission Statement -->
+    <section class="row" id="mission" aria-label="Mission Statement" style="margin-bottom:.5rem">
+      <h2 style="margin:0 0 .5rem 0; font-size:1.25rem;">Our Mission</h2>
+      <p style="color:var(--muted);max-width:70ch">
+       From Building Rockets to - <strong>Rocket City Jerky</strong>, we fuse space-city grit with small-batch craft.
+        Every bag fuels adventure—at work, on the road, or under a sky full of stars.
+        Flavors range from low-orbit mild to supernova heat.
+      </p>
+    </section>
+
     <!-- HERO -->
     <section class="hero" aria-label="Featured" id="hero">
-      <canvas id="planetsfx" aria-hidden="true"></canvas>
+      <!-- Realistic Planet Fly-by -->
+<canvas id="planetsfx" aria-hidden="true"></canvas>
       <div class="hero-gradient"></div>
       <div class="hero-inner">
         <div>
@@ -84,13 +131,15 @@
 
     <!-- SHOP -->
     <section class="row" id="shop" aria-label="Shop">
+      <!-- Tabs -->
       <div id="cat-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0 1rem">
         <button class="btn-ghost btn" data-cat="Space Craft">🚀 Space Craft</button>
-        <button class="btn-ghost btn" data-cat="Galaxies">🌌 Galaxies</button>
-        <button class="btn-ghost btn" data-cat="Stars">✨ Stars</button>
+        <button class="btn-ghost btn" data-cat="Galaxies">🌌 Galaxies (Mild)</button>
+        <button class="btn-ghost btn" data-cat="Stars">✨ Stars (Intense)</button>
         <button class="btn-ghost btn" data-cat="Mission Patches">🎖️ Mission Patches</button>
       </div>
 
+      <!-- Search + Sort -->
       <div id="filter-row" style="display:flex;gap:.5rem;align-items:center;margin:.5rem 0 1rem">
         <input class="input" id="shop-search" placeholder="Search flavors…" aria-label="Search products" />
         <select class="input" id="shop-sort" aria-label="Sort">
@@ -101,6 +150,7 @@
         </select>
       </div>
 
+      <!-- Grid + Pager -->
       <div class="grid" id="product-grid"></div>
       <div id="pager" style="display:flex;justify-content:center;gap:.35rem;margin-top:1rem"></div>
     </section>
@@ -116,191 +166,67 @@
     <footer>
       <div style="display:flex;align-items:center;justify-content:space-between">
         <strong>Total: $<span id="cartTotal">0.00</span></strong>
-        <button class="btn" id="checkoutBtn" title="Simulated checkout">Checkout</button>
+        <button class="btn" id="checkoutBtn">Checkout</button>
       </div>
-      <p class="muted" style="margin:.5rem 0 0">Payments: add Stripe Payment Links in script to enable direct checkout.</p>
+      <p class="muted" style="color:var(--muted);margin:.5rem 0 0">
+        Payments: add Stripe Payment Links in the script to enable checkout.
+      </p>
     </footer>
   </aside>
 
   <!-- Transition overlay (smoke canvas) -->
-  <div class="transition" id="transition" aria-hidden="true">
+  <div class="transition" id="transition">
     <canvas id="smokefx" width="0" height="0"></canvas>
   </div>
 
-  <!-- SmokeFX (clean, non-blocking) -->
+  <!-- App: catalog + cart + missions + hero -->
   <script>
   (function(){
-    const overlay=document.getElementById("transition");
-    const c=document.getElementById("smokefx"); if(!c) return;
-    const ctx=c.getContext("2d"); let W=0,H=0,DPR=Math.min(devicePixelRatio||1,2);
-    function resize(){W=c.width=innerWidth*DPR;H=c.height=innerHeight*DPR;c.style.width=innerWidth+"px";c.style.height=innerHeight+"px";ctx.setTransform(1,0,0,1,0,0);ctx.scale(DPR,DPR);}
-    addEventListener("resize",resize);resize();
-    const parts=[];const maxAge=900;
-    function spawn(){for(let i=0;i<180;i++){const a=Math.PI*(0.85+Math.random()*0.3);const s=1+Math.random()*3.5;parts.push({x:innerWidth/2+(Math.random()*40-20),y:innerHeight*0.85+(Math.random()*10-5),vx:Math.cos(a)*s,vy:Math.sin(a)*s-0.5,r:8+Math.random()*24,a:0.10+Math.random()*0.16,born:performance.now()+Math.random()*120});}}
-    let playing=false,raf=null,start=0;
-    function frame(now){
-      if(!playing) return;
-      ctx.clearRect(0,0,innerWidth,innerHeight);
-      ctx.fillStyle="rgba(5,6,10,0.10)";
-      ctx.fillRect(0,0,innerWidth,innerHeight);
-      ctx.globalCompositeOperation="lighter";
-      for(let i=parts.length-1;i>=0;i--){
-        const p=parts[i]; if(now<p.born) continue;
-        const age=now-p.born; const fade=Math.max(0,1-(age/maxAge));
-        p.x+=p.vx; p.y+=p.vy; p.vy-=0.008; p.vx+=(Math.sin((p.y+now*0.05)/50))*0.02;
-        const base=0.3*p.a*fade;
-        const grd=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
-        grd.addColorStop(0,`rgba(255,255,255,${base})`);
-        grd.addColorStop(0.55,`rgba(200,200,200,${base*0.35})`);
-        grd.addColorStop(1,`rgba(150,150,150,0)`);
-        ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
-        if(age>maxAge) parts.splice(i,1);
-      }
-      ctx.globalCompositeOperation="source-over";
-      if(now-start>700 && parts.length===0){ overlay.style.opacity="0"; setTimeout(()=>{overlay.style.display="none"; playing=false;},120); return; }
-      raf=requestAnimationFrame(frame);
-    }
-    function triggerSmoke(){
-      overlay.style.display="block"; overlay.style.opacity="1";
-      parts.length=0; start=performance.now(); spawn();
-      if(!playing){ playing=true; raf && cancelAnimationFrame(raf); raf=requestAnimationFrame(frame); }
-    }
-    window.triggerSmoke=triggerSmoke;
-  })();
-  </script>
+    /* Optional: Stripe Payment Links (set URLs to enable checkout) */
+    const PAYMENT_LINKS = { m1:"", m2:"", m3:"", m4:"", m5:"" };
+    const PRICE_PER_PACK = 13.99; // used for mission bundle price in cart
 
-  <!-- PlanetsFX (random spawn + rotate) -->
-  <script>
-  (function(){
-    const canvas=document.getElementById('planetsfx'); if(!canvas) return;
-    const ctx=canvas.getContext('2d'); let W=0,H=0,DPR=Math.min(devicePixelRatio||1,2);
-    function resize(){
-      const hero=document.getElementById('hero'); if(!hero) return;
-      const rect=hero.getBoundingClientRect();
-      W=canvas.width=Math.floor(rect.width*DPR); H=canvas.height=Math.floor(rect.height*DPR);
-      canvas.style.width=rect.width+'px'; canvas.style.height=rect.height+'px';
-      ctx.setTransform(1,0,0,1,0,0); ctx.scale(DPR,DPR);
-    }
-    addEventListener('resize',resize); resize();
-    const textures=[
-      'https://images-assets.nasa.gov/image/PIA00407/PIA00407~orig.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/0/02/Blue_Marble_Eastern_Hemisphere.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg'
-    ];
-    function load(src){ return new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin='anonymous'; i.onload=()=>res(i); i.onerror=rej; i.src=src; }); }
-    Promise.all(textures.map(load)).then(start).catch(()=>{});
-    function rand(a,b){ return Math.random()*(b-a)+a; }
-    function makePlanet(img,radius,spin,x,y,driftX){ return {img,r:radius,spin,angle:Math.random()*Math.PI*2,x,y,vx:driftX*40,lightDir:[-0.6,-0.1],wobble:6+Math.random()*8,wobbleT:Math.random()*Math.PI*2}; }
-    function start(imgs){
-      const planets = Array.from({length:5}, ()=>{
-        const img=imgs[Math.floor(Math.random()*imgs.length)];
-        const r=rand(90,220), spin=rand(0.009,0.02)*(Math.random()<0.5?-1:1);
-        const x=rand(0.1,(canvas.width/DPR)*0.9), y=rand(0.25,(canvas.height/DPR)*0.8);
-        const dx=rand(-0.12,0.12); return makePlanet(img,r,spin,x,y,dx);
-      });
-      function draw(p){
-        const x=p.x+Math.sin(p.wobbleT)*p.wobble*0.4, y=p.y+Math.cos(p.wobbleT*0.7)*p.wobble*0.25, r=p.r;
-        ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.closePath(); ctx.clip();
-        const img=p.img; if(img && img.width){
-          const offset=Math.floor((p.angle/(Math.PI*2))*img.width)%img.width;
-          const scale=(r*2)/img.height; const dw=img.width*scale, dh=img.height*scale; const left=x-r-dw+(offset*scale);
-          ctx.drawImage(img,left,y-r,dw,dh); ctx.drawImage(img,left+dw,y-r,dw,dh);
-        }
-        const vign=ctx.createRadialGradient(x,y,r*0.2,x,y,r);
-        vign.addColorStop(0,'rgba(0,0,0,0)'); vign.addColorStop(1,'rgba(0,0,0,0.35)');
-        ctx.globalCompositeOperation='multiply'; ctx.fillStyle=vign; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
-        ctx.restore(); ctx.globalCompositeOperation='source-over';
-      }
-      let last=performance.now();
-      function frame(now){
-        const dt=Math.min((now-last)/1000,0.033); last=now;
-        ctx.clearRect(0,0,canvas.width/DPR,canvas.height/DPR);
-        for(const p of planets){
-          p.angle+=p.spin; p.x+=p.vx*dt; p.wobbleT+=dt*0.7;
-          const vw=canvas.width/DPR, vh=canvas.height/DPR, off=p.r*1.6;
-          if(p.x<-off || p.x>vw+off){
-            p.r=rand(90,220); p.spin=rand(0.009,0.02)*(Math.random()<0.5?-1:1); p.vx=rand(-0.12,0.12)*40; p.angle=Math.random()*Math.PI*2;
-            const fromLeft=Math.random()<0.5; p.x=fromLeft?-off:vw+off; p.y=rand(0.25*vh,0.8*vh);
-          }
-          draw(p);
-        }
-        requestAnimationFrame(frame);
-      }
-      requestAnimationFrame(frame);
-    }
-  })();
-  </script>
-
-  <!-- Starfield background -->
-  <script>
-  (function(){
-    const canvas=document.getElementById('bgfx'); if(!canvas) return;
-    const ctx=canvas.getContext('2d',{alpha:true});
-    let W=canvas.width=innerWidth, H=canvas.height=innerHeight;
-    const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const DPR=Math.min(devicePixelRatio||1,2); canvas.width=W*DPR; canvas.height=H*DPR; ctx.scale(DPR,DPR);
-    const STAR_COUNT=reduced?200:800, METEOR_RATE=reduced?0.0006:0.0012, GRAVITY_RADIUS=140, GRAVITY_STRENGTH=0.04;
-    const mouse={x:W*0.5,y:H*0.5,active:false};
-    addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;mouse.active=true;}); addEventListener('mouseleave',()=>{mouse.active=false;});
-    const stars=[], meteors=[]; const rand=(a,b)=>Math.random()*(b-a)+a;
-    function makeStar(){ const z=Math.random()*0.8+0.2; return {x:Math.random()*W,y:Math.random()*H,z,size:rand(0.6,1.6)*z,vx:(Math.random()*0.3+0.05)*z,vy:(Math.random()*0.2-0.1)*z,tw:Math.random()*Math.PI*2}; }
-    for(let i=0;i<STAR_COUNT;i++) stars.push(makeStar());
-    function drawStar(s){ s.tw+=0.05; const tw=0.7+0.3*Math.sin(s.tw+s.z*5); ctx.globalAlpha=0.6*s.z*tw; ctx.fillStyle="#fff"; ctx.fillRect(s.x,s.y,s.size,s.size); ctx.globalAlpha=1; }
-    function spawnMeteor(){ const top=Math.random()<0.5; const x=rand(-100,W*0.2); const y=top?rand(-60,H*0.3):rand(H*0.7,H+60); const s=rand(6,10); const a=top?rand(Math.PI*0.1,Math.PI*0.3):rand(-Math.PI*0.3,-Math.PI*0.1); meteors.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,birth:performance.now()});}
-    let last=performance.now(); const meteorMax=1200;
-    function frame(now){
-      const dt=Math.min((now-last)/1000,0.033); last=now;
-      ctx.clearRect(0,0,W,H);
-      for(const s of stars){
-        s.x+=s.vx; s.y+=s.vy;
-        if(s.x>W+5)s.x=-5; if(s.y<-5)s.y=H+5; if(s.y>H+5)s.y=-5;
-        if(mouse.active){ const dx=mouse.x-s.x, dy=mouse.y-s.y, d2=dx*dx+dy*dy; if(d2<GRAVITY_RADIUS*GRAVITY_RADIUS){ const d=Math.sqrt(d2)||1; s.vx+=(dx/d)*GRAVITY_STRENGTH*s.z; s.vy+=(dy/d)*GRAVITY_STRENGTH*s.z; } }
-        drawStar(s); s.vx*=0.998; s.vy*=0.998;
-      }
-      if(!reduced && Math.random()<METEOR_RATE) spawnMeteor();
-      for(let i=meteors.length-1;i>=0;i--){
-        const m=meteors[i]; m.x+=m.vx*dt; m.y+=m.vy*dt;
-        ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(Math.atan2(m.vy,m.vx)||0);
-        const len=80; const grad=ctx.createLinearGradient(0,0,-len,0); grad.addColorStop(0,"rgba(255,255,255,0.95)"); grad.addColorStop(1,"rgba(255,180,120,0)");
-        ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-len,0); ctx.stroke(); ctx.restore();
-        if(now-m.birth>meteorMax || m.x>W+120 || m.x<-120 || m.y<-120 || m.y>H+120) meteors.splice(i,1);
-      }
-      if(!reduced) requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-    addEventListener("resize",()=>{ W=canvas.width=innerWidth; H=canvas.height=innerHeight; canvas.width=W*DPR; canvas.height=H*DPR; ctx.setTransform(1,0,0,1,0,0); ctx.scale(DPR,DPR); });
-    addEventListener("click",()=>{ if(!reduced) spawnMeteor(); });
-  })();
-  </script>
-
-  <!-- Catalog + Cart + Missions + Inventory overlay + Hero rotation -->
-  <script>
-  (function(){
-    const PAYMENT_LINKS = { m1:"", m2:"", m3:"", m4:"", m5:"" }; // add Stripe links to enable direct checkout
-    const PRICE_PER_PACK = 13.99;
-
+    /* Catalog data */
     const PRODUCTS = [
-      { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)", price:12.99, stock:120, cat:"Space Craft", heat:"mild",    popular:95, img:"https://images.unsplash.com/photo-1604908176997-4310b2c5d4f5?q=80&w=800&auto=format" },
-      { id:"sc-hs-8",   title:"Honey Sriracha (8oz)",               price:13.99, stock: 90, cat:"Space Craft", heat:"medium",  popular:90, img:"https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?q=80&w=800&auto=format" },
-      { id:"sc-tc-8",   title:"Teriyaki Comet (8oz)",               price:12.99, stock:100, cat:"Space Craft", heat:"mild",    popular:85, img:"https://images.unsplash.com/photo-1516685018646-549198525c1b?q=80&w=800&auto=format" },
-      { id:"sc-gg-12",  title:"Galactic Garlic (12oz)",             price:17.99, stock: 45, cat:"Space Craft", heat:"mild",    popular:80, img:"https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=800&auto=format" },
+      /* Space Craft */
+      { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)", price:12.99, cat:"Space Craft", heat:"mild",    popular:95 },
+      { id:"sc-hs-8",   title:"Honey Sriracha (8oz)",               price:13.99, cat:"Space Craft", heat:"medium",  popular:90 },
+      { id:"sc-tc-8",   title:"Teriyaki Comet (8oz)",               price:12.99, cat:"Space Craft", heat:"mild",    popular:85 },
+      { id:"sc-gg-12",  title:"Galactic Garlic (12oz)",             price:17.99, cat:"Space Craft", heat:"mild",    popular:80 },
+      { id:"sc-ssh-8",  title:"Stellar Sweet Heat (8oz)",           price:14.99, cat:"Space Craft", heat:"medium",  popular:78 },
+      { id:"sc-sn-8",   title:"Supernova BBQ (8oz)",                price:14.99, cat:"Space Craft", heat:"mild",    popular:72 },
+      { id:"sc-ml-8",   title:"Meteor Lime (8oz)",                  price:13.99, cat:"Space Craft", heat:"medium",  popular:70 },
+      { id:"sc-aa-8",   title:"Andromeda Applewood (8oz)",          price:15.99, cat:"Space Craft", heat:"mild",    popular:68 },
 
-      { id:"gal-mh-12", title:"Mango Habanero (12oz)",              price:16.99, stock:110, cat:"Galaxies",    heat:"mild",    popular:98, img:"https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800&auto=format" },
-      { id:"gal-ao-8",  title:"Astro Original (8oz)",               price:12.99, stock:140, cat:"Galaxies",    heat:"mild",    popular:88, img:"https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=800&auto=format" },
+      /* Galaxies (mild) */
+      { id:"gal-mh-12", title:"Mango Habanero (12oz)",              price:16.99, cat:"Galaxies",    heat:"mild",    popular:98 },
+      { id:"gal-ao-8",  title:"Astro Original (8oz)",               price:12.99, cat:"Galaxies",    heat:"mild",    popular:88 },
+      { id:"gal-ss-8",  title:"Saturn Smoke (8oz)",                 price:14.99, cat:"Galaxies",    heat:"mild",    popular:76 },
+      { id:"gal-ll-8",  title:"Lunar Lemon (8oz)",                  price:13.99, cat:"Galaxies",    heat:"mild",    popular:74 },
 
-      { id:"st-bhh-8",  title:"Black Hole Hot (8oz)",               price:15.99, stock: 35, cat:"Stars",       heat:"intense", popular:97, img:"https://images.unsplash.com/photo-1498575392708-23b3ff3f3a30?q=80&w=800&auto=format" },
-      { id:"st-ij-8",   title:"Ion Jalapeño (8oz)",                 price:13.99, stock: 60, cat:"Stars",       heat:"intense", popular:84, img:"https://images.unsplash.com/photo-1473091534298-04dcbce3278c?q=80&w=800&auto=format" },
+      /* Stars (intense) */
+      { id:"st-bhh-8",  title:"Black Hole Hot (8oz)",               price:15.99, cat:"Stars",       heat:"intense", popular:97 },
+      { id:"st-ij-8",   title:"Ion Jalapeño (8oz)",                 price:13.99, cat:"Stars",       heat:"intense", popular:84 },
+      { id:"st-ccp-8",  title:"Comet Chipotle (8oz)",               price:14.99, cat:"Stars",       heat:"intense", popular:83 },
+      { id:"st-nn-12",  title:"Nebula Nitro (12oz)",                price:18.99, cat:"Stars",       heat:"intense", popular:81 },
     ];
     window.PRODUCTS = PRODUCTS;
 
+    /* Missions */
     const MISSIONS = [
-      { id:"m1", title:"Mission 1 — Liftoff",      packs:3,   reward:"Mission patch",         story:"Your journey begins on the launch pad. Three packs—choose flavors and light the fuse." },
-      { id:"m2", title:"Mission 2 — Refuel",       packs:5,   reward:"Mission patch",         story:"Cleared the tower. Keep tanks topped—five packs any way you like to extend burn." },
-      { id:"m3", title:"Mission 3 — Exoplanetary", packs:10,  reward:"Mission patch",         story:"Past the heliopause—chart new taste worlds with a 10-pack explorer set." },
-      { id:"m4", title:"Mission 4 — Interstellar", packs:40,  reward:"Limited company patch", story:"For crews/companies: a cargo bay for the whole flight deck—forty bags." },
-      { id:"m5", title:"Mission 5 — Limited Coin", packs:100, reward:"Limited edition coin",  story:"Legend status. A commemorative coin for century-pack captains." },
+      { id:"m1", title:"Mission 1 — Liftoff",      packs:3,   reward:"Mission patch",
+        story:"Your journey begins on the launch pad. Three packs—choose flavors and light the fuse." },
+      { id:"m2", title:"Mission 2 — Refuel",       packs:5,   reward:"Mission patch",
+        story:"Cleared the tower. Keep tanks topped—five packs any way you like to extend burn." },
+      { id:"m3", title:"Mission 3 — Exoplanetary", packs:10,  reward:"Mission patch",
+        story:"Past the heliopause—chart new taste worlds with a 10-pack explorer set." },
+      { id:"m4", title:"Mission 4 — Interstellar", packs:40,  reward:"Limited company patch",
+        story:"For crews/companies: a cargo bay for the whole flight deck—forty bags." },
+      { id:"m5", title:"Mission 5 — Limited Coin", packs:100, reward:"Limited edition coin",
+        story:"Legend status. A commemorative coin for century-pack captains." },
     ];
 
+    /* DOM */
     const grid = document.getElementById("product-grid");
     const pager = document.getElementById("pager");
     const tabs  = document.getElementById("cat-tabs");
@@ -309,20 +235,7 @@
     const filterRow = document.getElementById("filter-row");
     const PAGE_SIZE = 8;
 
-    function loadOverrides(){
-      try{ return JSON.parse(localStorage.getItem('rcj.inventory') || '{}'); }catch{return {}}
-    }
-    function applyInventoryOverrides(){
-      const inv = loadOverrides();
-      PRODUCTS.forEach(p=>{
-        const o=inv[p.id]; if(!o) return;
-        if (typeof o.stock === 'number') p.stock = o.stock;
-        if (typeof o.price === 'number') p.price = o.price;
-        if (typeof o.active === 'boolean' && !o.active) p.stock = 0;
-        if (o.img) p.img = o.img;
-      });
-    }
-
+    /* Router */
     function getState(){
       const url = new URL(location.href);
       return {
@@ -343,6 +256,7 @@
     }
     window.addEventListener("popstate", render);
 
+    /* Catalog */
     function applyFilters(items, st){
       let out = items.slice();
       if (st.cat && st.cat !== "Mission Patches") out = out.filter(p => p.cat === st.cat);
@@ -355,28 +269,16 @@
       }
       return out;
     }
-
     function renderGrid(items){
-      const fallback = "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=800&auto=format";
-      grid.innerHTML = items.map(p=>{
-        const soldOut = (p.stock||0) <= 0;
-        return `
-          <div class="pitem" data-id="${p.id}">
-            <img src="${p.img || fallback}" alt="${p.title}" style="width:100%;height:140px;object-fit:cover;border-radius:8px;border:1px solid var(--border)" />
-            <div style="font-weight:600;margin-top:.4rem">${p.title}</div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div class="price">$${p.price.toFixed(2)}</div>
-              <div style="font-size:.85rem;color:${soldOut?'#f87171':'var(--muted)'}">${soldOut?'Sold out':`In stock: ${p.stock}`}</div>
-            </div>
-            <div style="display:flex;gap:.5rem;align-items:center;margin-top:.35rem">
-              <input class="qty" type="number" min="1" value="1" ${soldOut?'disabled':''} style="width:64px;background:transparent;border:1px solid var(--border);border-radius:8px;padding:.3rem;color:#fff" />
-              <button class="btn add" ${soldOut?'disabled':''}>Add to Cart</button>
-            </div>
-          </div>
-        `;
-      }).join("");
+      grid.innerHTML = items.map(p => `
+        <div class="pitem" data-id="${p.id}">
+          <div style="height:130px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">${p.cat}</div>
+          <div style="font-weight:600">${p.title}</div>
+          <div class="price">$${p.price.toFixed(2)}</div>
+          <button class="btn add">Add to Cart</button>
+        </div>
+      `).join("");
     }
-
     function renderPager(total, st){
       const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
       const cur = Math.min(st.page, pages);
@@ -396,69 +298,69 @@
       pager.innerHTML = html;
     }
 
-    const MISSIONS_VIEW = {
-      ensureBundleProduct(id, title, price){
-        if (!PRODUCTS.find(p=>p.id===id)){
-          PRODUCTS.push({ id, title, price, cat:"Mission Patches", heat:"", popular:50, stock: 9999 });
-        }
-      },
-      render(){
-        pager.style.display = "none";
-        if (filterRow) filterRow.style.display = "none";
-        grid.innerHTML = MISSIONS.map(m => `
-          <div class="pitem" data-mission="${m.id}">
-            <div style="height:140px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">
-              🎖️ ${m.title}
-            </div>
-            <div style="margin-top:.35rem">
-              <div style="font-weight:600">Requirement: ${m.packs} packs</div>
-              <div class="muted" style="font-size:.9rem;margin-top:.25rem">Reward: ${m.reward}</div>
-            </div>
-            <details style="margin:.35rem 0 0 0; border:1px solid var(--border); border-radius:8px; padding:.5rem; background:var(--panel)">
-              <summary style="cursor:pointer; outline:none">Read story</summary>
-              <p class="muted" style="margin:.5rem 0 0 0">${m.story}</p>
-            </details>
-            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
-              <button class="btn" data-cta="${m.id}">Join Mission</button>
-              <button class="btn-ghost btn" data-cta-cart="${m.id}">Add to Cart (bundle)</button>
-            </div>
-          </div>
-        `).join("");
-
-        grid.onclick = (e)=>{
-          const join = e.target.closest("button[data-cta]");
-          const add  = e.target.closest("button[data-cta-cart]");
-          if (join){
-            const id = join.getAttribute("data-cta");
-            const link = PAYMENT_LINKS[id];
-            if (link){ location.href = link; return; }
-            const m = MISSIONS.find(x=>x.id===id);
-            if (m) alert(`${m.title}\n\nRequirement: ${m.packs} packs\nReward: ${m.reward}\n\n(Add a Stripe Payment Link in the script to enable direct checkout.)`);
-          }
-          if (add){
-            const id = add.getAttribute("data-cta-cart");
-            const m  = MISSIONS.find(x=>x.id===id); if(!m) return;
-            const pseudoId = `bundle-${id}`;
-            this.ensureBundleProduct(pseudoId, `${m.title} (${m.packs} packs)`, m.packs * PRICE_PER_PACK);
-            addToCart(pseudoId, 1, true);
-            setTimeout(()=>{ window.triggerSmoke && window.triggerSmoke(); }, 0);
-          }
-        };
+    /* Missions */
+    function ensureBundleProduct(id, title, price){
+      if (!PRODUCTS.find(p=>p.id===id)){
+        PRODUCTS.push({ id, title, price, cat:"Mission Patches", heat:"", popular:50 });
       }
-    };
+    }
+    function renderMissions(){
+      pager.style.display = "none";
+      if (filterRow) filterRow.style.display = "none";
+      grid.innerHTML = MISSIONS.map(m => `
+        <div class="pitem" data-mission="${m.id}">
+          <div style="height:130px;border-radius:8px;background:linear-gradient(135deg,#1d2340,#44235a);display:grid;place-items:center;font-weight:700">
+            🎖️ ${m.title}
+          </div>
+          <div style="margin-top:.35rem">
+            <div style="font-weight:600">Requirement: ${m.packs} packs</div>
+            <div style="color:var(--muted);font-size:.9rem;margin-top:.25rem">Reward: ${m.reward}</div>
+          </div>
+          <details style="margin:.35rem 0 0 0; border:1px solid var(--border); border-radius:8px; padding:.5rem; background:var(--panel)">
+            <summary style="cursor:pointer; outline:none">Read story</summary>
+            <p style="color:var(--muted); margin:.5rem 0 0 0">${m.story}</p>
+          </details>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
+            <button class="btn" data-cta="${m.id}">Join Mission</button>
+            <button class="btn-ghost btn" data-cta-cart="${m.id}">Add to Cart (bundle)</button>
+          </div>
+        </div>
+      `).join("");
 
-    function getStateAndRenderCatalog(){
+      grid.onclick = (e)=>{
+        const join = e.target.closest("button[data-cta]");
+        const add  = e.target.closest("button[data-cta-cart]");
+        if (join){
+          const id = join.getAttribute("data-cta");
+          const link = PAYMENT_LINKS[id];
+          if (link){ location.href = link; return; }
+          const m = MISSIONS.find(x=>x.id===id);
+          if (m) alert(`${m.title}\n\nRequirement: ${m.packs} packs\nReward: ${m.reward}\n\n(Add your Stripe Payment Link in the script to enable direct checkout.)`);
+        }
+        if (add){
+          const id = add.getAttribute("data-cta-cart");
+          const m  = MISSIONS.find(x=>x.id===id);
+          if (!m) return;
+          const pseudoId = `bundle-${id}`;
+          ensureBundleProduct(pseudoId, `${m.title} (${m.packs} packs)`, m.packs * PRICE_PER_PACK);
+          addToCart(pseudoId);
+          setTimeout(()=>{ window.triggerSmoke && window.triggerSmoke(); }, 0);
+        }
+      };
+    }
+
+    /* Render orchestrator */
+    function render(){
       const st = getState();
+
+      // tab styles
       [...tabs.querySelectorAll("button")].forEach(b=>{
         b.style.borderColor = (b.dataset.cat===st.cat) ? "#6366f1" : "var(--border)";
       });
 
-      if (st.cat === "Mission Patches"){ MISSIONS_VIEW.render(); return; }
-
+      if (st.cat === "Mission Patches"){ renderMissions(); return; }
       if (filterRow) filterRow.style.display = "";
-      pager.style.display = "";
 
-      searchInput.value = st.q; sortSel.value = st.sort;
       const filtered = applyFilters(PRODUCTS, st);
       const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
       const cur = Math.min(st.page, pages);
@@ -467,8 +369,10 @@
 
       renderGrid(pageItems);
       renderPager(filtered.length, st);
+      pager.style.display = "";
     }
 
+    /* Events */
     tabs.addEventListener("click", (e)=>{
       const btn = e.target.closest("button[data-cat]"); if(!btn) return;
       setState({ cat: btn.dataset.cat, page: 1 });
@@ -482,20 +386,16 @@
     searchInput.addEventListener("input", (e)=> setState({ q: e.target.value, page: 1 }));
     sortSel.addEventListener("change", (e)=> setState({ sort: e.target.value, page: 1 }));
 
+    /* Cart */
     const cartKey = 'rcj.cart';
     function loadCart(){ try{ return JSON.parse(localStorage.getItem(cartKey) || '[]'); }catch{return []} }
     function saveCart(items){ localStorage.setItem(cartKey, JSON.stringify(items)); updateCartUI(); }
-    function getInCartQty(id){ return loadCart().find(x=>x.id===id)?.qty || 0; }
-    function canAdd(id, qty){
-      const p = PRODUCTS.find(x=>x.id===id); if(!p) return false;
-      const max = p.stock || 0; return getInCartQty(id) + qty <= max;
-    }
-    function addToCart(id, qty=1, skipCheck=false){
-      if (!skipCheck && !canAdd(id, qty)) { alert('Not enough stock for that quantity.'); return; }
+    function addToCart(id){
       const items = loadCart();
-      let line = items.find(x=>x.id===id);
-      if(!line){ line = { id, qty:0 }; items.push(line); }
-      line.qty += qty; saveCart(items);
+      const found = items.find(x=>x.id===id);
+      if (found) found.qty++;
+      else items.push({ id, qty:1 });
+      saveCart(items);
     }
     function updateCartUI(){
       const cartItems = document.getElementById('cartItems');
@@ -508,53 +408,417 @@
       if (cartItems){
         cartItems.innerHTML = items.map(it=>`
           <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:.5rem 0">
-            <div><div>${it.title}</div><div class="muted" style="font-size:.85rem">Qty: ${it.qty}</div></div>
+            <div><div>${it.title}</div><div class="badge">Qty: ${it.qty}</div></div>
             <div style="display:flex;align-items:center;gap:.5rem">
               <strong>$${(it.price*it.qty).toFixed(2)}</strong>
               <button class="btn-ghost btn" data-remove="${it.id}">Remove</button>
             </div>
-          </div>
-        `).join('');
+          </div>`).join('');
         const total = items.reduce((s,it)=> s + (Number(it.price)||0)*it.qty, 0);
         if (cartTotal) cartTotal.textContent = total.toFixed(2);
         const count = items.reduce((s,it)=> s + it.qty, 0);
         if (cartCount) cartCount.textContent = count;
       }
     }
-    grid.addEventListener('click', (e)=>{
-      const card = e.target.closest('.pitem'); if(!card) return;
-      const id = card.getAttribute('data-id'); if(!id) return;
-      const qtyInput = card.querySelector('.qty');
-      const qty = Math.max(1, parseInt(qtyInput?.value || "1", 10));
-      const addBtn = e.target.closest('.add'); if(!addBtn) return;
-      addToCart(id, qty);
+    document.getElementById('product-grid').addEventListener('click', (e)=>{
+      const add = e.target.closest('.add'); if(!add) return;
+      const card = e.target.closest('.pitem'); addToCart(card.getAttribute('data-id'));
       setTimeout(()=>{ window.triggerSmoke && window.triggerSmoke(); }, 0);
     });
+    const cartItemsEl = document.getElementById('cartItems');
+    if (cartItemsEl){
+      cartItemsEl.addEventListener('click', (e)=>{
+        const rm = e.target.getAttribute('data-remove'); if(!rm) return;
+        let items = loadCart().filter(x=>x.id!==rm); saveCart(items);
+      });
+    }
     document.getElementById('cartBtn').onclick = ()=> document.getElementById('cartDrawer').classList.add('open');
     document.getElementById('closeCartBtn').onclick = ()=> document.getElementById('cartDrawer').classList.remove('open');
-    document.getElementById('checkoutBtn').onclick = ()=> alert('Payments: add Stripe Payment Links to PAYMENT_LINKS or integrate a backend. This is a static demo.');
-    cartItems.addEventListener('click', (e)=>{
-      const rm = e.target.getAttribute('data-remove'); if(!rm) return;
-      let items = loadCart().filter(x=>x.id!==rm); saveCart(items);
-    });
+    document.getElementById('checkoutBtn').onclick = ()=>{
+      alert('Payments: add Stripe Payment Links to PAYMENT_LINKS or integrate a backend. This is a static demo.');
+    };
 
-    applyInventoryOverrides();
-    getStateAndRenderCatalog();
+    /* First paint */
+    render();
     updateCartUI();
 
+    /* HERO rotation (Top Sellers + Deals) */
     (function(){
-      const hero=document.getElementById("hero"); if(!hero) return;
-      const titleEl=hero.querySelector("h1"); const descEl=hero.querySelector("p");
-      const byPop=PRODUCTS.slice().sort((a,b)=>b.popular-a.popular);
-      const top5=byPop.slice(0,5); const deals=PRODUCTS.filter(p=>p.price<=13.5).slice(0,5);
-      const slides=[...top5,...deals]; let i=0;
+      const hero = document.getElementById("hero"); if (!hero) return;
+      const titleEl = hero.querySelector("h1");
+      const descEl  = hero.querySelector("p");
+      const byPop = PRODUCTS.slice().sort((a,b)=>b.popular - a.popular);
+      const top5  = byPop.slice(0,5);
+      const deals = PRODUCTS.filter(p => p.price <= 13.5).slice(0,5);
+      const slides = [...top5, ...deals];
+      let i=0;
       setInterval(()=>{
-        const s=slides[i % slides.length];
-        if(titleEl) titleEl.textContent = s ? s.title : "Rocket City Jerky";
-        if(descEl)  descEl.textContent  = s ? `From $${s.price.toFixed(2)} • ${s.cat}` : "Bold flavors. North Alabama made.";
+        const s = slides[i % slides.length];
+        if (titleEl) titleEl.textContent = s ? s.title : "Rocket City Jerky";
+        if (descEl)  descEl.textContent  = s ? `From $${s.price.toFixed(2)} • ${s.cat}` : "Bold flavors. North Alabama made.";
         i++;
-      },5000);
+      }, 5000);
     })();
+  })();
+  </script>
+
+  <!-- SmokeFX (cleaner, lighter, never blocks) -->
+  <script>
+  (function(){
+    const overlay = document.getElementById("transition");
+    const c = document.getElementById("smokefx");
+    if (!overlay || !c) return;
+    const ctx = c.getContext("2d");
+    let W=0, H=0, DPR=Math.min(devicePixelRatio||1,2);
+    function resize(){
+      W = c.width  = innerWidth * DPR;
+      H = c.height = innerHeight * DPR;
+      c.style.width  = innerWidth + "px";
+      c.style.height = innerHeight + "px";
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.scale(DPR,DPR);
+    }
+    addEventListener("resize", resize); resize();
+
+    const parts = [];
+    const maxAge = 900; // ms
+    function spawnBurst(){
+      const baseY = innerHeight * 0.85;
+      const baseX = innerWidth * 0.5;
+      const n = 180; // reduced density
+      for (let i=0;i<n;i++){
+        const ang = Math.PI * (0.85 + Math.random()*0.3);
+        const spd = 1 + Math.random()*3.5;
+        parts.push({
+          x: baseX + (Math.random()*40-20),
+          y: baseY + (Math.random()*10-5),
+          vx: Math.cos(ang)*spd,
+          vy: Math.sin(ang)*spd - 0.5,
+          r:  8 + Math.random()*24,
+          a:  0.10 + Math.random()*0.16,
+          born: performance.now() + Math.random()*120
+        });
+      }
+    }
+
+    let playing = false, raf=null, start=0;
+    function frame(now){
+      if (!playing) return;
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+      // subtle dark wash for depth
+      ctx.fillStyle="rgba(5,6,10,0.10)";
+      ctx.fillRect(0,0,innerWidth,innerHeight);
+
+      ctx.globalCompositeOperation = "lighter";
+      for (let i=parts.length-1;i>=0;i--){
+        const p = parts[i];
+        if (now < p.born) continue;
+        const age = now - p.born;
+        const fade = Math.max(0, 1 - (age / maxAge));
+
+        // motion
+        p.x += p.vx; p.y += p.vy;
+        p.vy -= 0.008;
+        p.vx += (Math.sin((p.y + now*0.05)/50))*0.02;
+
+        // softer plume
+        const base = 0.30 * p.a * fade;
+        const grd = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+        grd.addColorStop(0, `rgba(255,255,255,${base})`);
+        grd.addColorStop(0.55, `rgba(200,200,200,${base*0.35})`);
+        grd.addColorStop(1, `rgba(150,150,150,0)`);
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+
+        if (age > maxAge) parts.splice(i,1);
+      }
+      ctx.globalCompositeOperation = "source-over";
+
+      // finish
+      if (now - start > 700 && parts.length === 0) {
+        overlay.style.opacity = "0";
+        setTimeout(()=>{ overlay.style.opacity="0"; overlay.style.display="none"; playing=false; }, 120);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+
+    function triggerSmoke(){
+      overlay.style.display = "block";
+      overlay.style.opacity = "1";
+      parts.length = 0; start = performance.now(); spawnBurst();
+      if (!playing) { playing = true; raf && cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); }
+    }
+
+    // hook after state changes so it never hides the grid paint
+    const tabs = document.getElementById("cat-tabs");
+    if (tabs) tabs.addEventListener("click", (e)=>{ if (e.target.closest("button[data-cat]")) setTimeout(triggerSmoke,0); });
+    const pager = document.getElementById("pager");
+    if (pager) pager.addEventListener("click", (e)=>{ if (e.target.closest("button[data-page]")) setTimeout(triggerSmoke,0); });
+    document.querySelectorAll('[data-route="home"], [data-route="shop"]').forEach(a=> a.addEventListener("click", ()=> setTimeout(triggerSmoke,0)));
+
+    window.triggerSmoke = triggerSmoke;
+  })();
+  </script>
+<!-- PlanetsFX: realistic rotating planets that drift across the hero -->
+<script>
+(function(){
+  const canvas = document.getElementById('planetsfx');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  let W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    const hero = document.getElementById('hero');
+    if(!hero) return;
+    const rect = hero.getBoundingClientRect();
+    W = canvas.width  = Math.floor(rect.width  * DPR);
+    H = canvas.height = Math.floor(rect.height * DPR);
+    canvas.style.width  = rect.width  + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(DPR, DPR);
+  }
+  addEventListener('resize', resize); resize();
+
+  // --- Texture sources (public NASA/SpaceX style). You can swap to your own textures anytime.
+  // Square-ish textures work best. Keep file sizes reasonable (<1MB).
+  const textures = [
+    // Mars
+    'https://images-assets.nasa.gov/image/PIA00407/PIA00407~orig.jpg',
+    // Earth night/day montage (for subtle detail)
+    'https://upload.wikimedia.org/wikipedia/commons/0/02/Blue_Marble_Eastern_Hemisphere.jpg',
+    // Jupiter
+    'https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg'
+  ];
+
+  // Load images
+  function load(src){ return new Promise((resolve,reject)=>{ const i=new Image(); i.crossOrigin='anonymous'; i.onload=()=>resolve(i); i.onerror=reject; i.src=src; }); }
+  Promise.all(textures.map(load)).then((imgs)=>start(imgs)).catch(()=>{/* fail silently */});
+
+  function start(imgs){
+// Build planet instances (randomized)
+const planets = Array.from({ length: 5 }, () => {
+  const img = imgs[Math.floor(Math.random() * imgs.length)];
+  const radius = rand(90, 220);                     // 90–220 px
+  const spin   = rand(0.009, 0.020) * (Math.random() < 0.5 ? -1 : 1); // cw/ccw
+  const xNorm  = rand(0.05, 0.95);                  // anywhere across hero
+  const yNorm  = rand(0.25, 0.80);                  // keep in vertical band
+  const driftX = rand(-0.12, 0.12);                 // left or right
+  return makePlanet(img, radius, spin, xNorm, yNorm, driftX);
+});
+
+
+    let last = performance.now();
+    function frame(now){
+      if (!canvas.isConnected) return; // in case hero unmounts
+      const dt = Math.min((now - last)/1000, 0.033); last = now;
+
+      // Clear
+      ctx.clearRect(0,0,W/DPR,H/DPR);
+
+      // Draw each planet
+      for (const p of planets){
+        updatePlanet(p, dt);
+        drawPlanet(p);
+      }
+
+      if(!reduced) requestAnimationFrame(frame);
+    }
+    if(!reduced) requestAnimationFrame(frame);
+    else { // draw a static frame for reduced motion
+      planets.forEach(drawPlanet);
+    }
+  }
+
+  // Make a planet
+  function makePlanet(img, radius, spin, xNorm, yNorm, driftX){
+    // xNorm,yNorm are relative positions on hero (0..1)
+    const planet = {
+      img,
+      r: radius,             // px at 1x (we draw in CSS px, DPR handled by context scale)
+      spin,                  // radians per sec
+      angle: Math.random()*Math.PI*2,
+      // position in CSS pixels (not DPR)
+      x: xNorm * (canvas.width / DPR),
+      y: yNorm * (canvas.height/ DPR),
+      // drift across screen (px/sec)
+      vx: driftX * 40,       // slow pan looks cinematic
+      // lighting
+      lightDir: [-0.6, -0.1], // normalized light (from top-left)
+      // parallax wobble
+      wobble: 6 + Math.random()*8,
+      wobbleT: Math.random()*Math.PI*2
+    };
+    return planet;
+  }
+
+  function updatePlanet(p, dt){
+    p.angle += p.spin * (dt*60/60); // keep constant-ish speed
+    p.x     += p.vx   * dt;
+    p.wobbleT += dt*0.7;
+// respawn anywhere when off-screen for more variety
+const viewW = canvas.width / DPR, viewH = canvas.height / DPR;
+const off = p.r * 1.6;
+
+if (p.x < -off || p.x > viewW + off) {
+  // new random attributes
+  p.r     = rand(90, 220);
+  p.spin  = rand(0.009, 0.020) * (Math.random() < 0.5 ? -1 : 1);
+  p.vx    = rand(-0.12, 0.12) * 40;
+  p.angle = Math.random() * Math.PI * 2;
+
+  // re-enter from random side to a random position
+  const fromLeft = Math.random() < 0.5;
+  p.x = fromLeft ? -off : viewW + off;
+  p.y = rand(0.25 * viewH, 0.80 * viewH);
+}
+
+  function clamp(min,max,v){ return Math.max(min, Math.min(max, v)); }
+
+  // Draw a textured, shaded “sphere” in 2D:
+  // 1) clip a circular path
+  // 2) paint a horizontally “rotated” texture by shifting its x offset
+  // 3) multiply a radial vignette and a directional light to give volume
+  function drawPlanet(p){
+    const ctxPx = ctx; // we already scaled by DPR at resize
+
+    const x = p.x + Math.sin(p.wobbleT)*p.wobble*0.4;
+    const y = p.y + Math.cos(p.wobbleT*0.7)*p.wobble*0.25;
+    const r = p.r;
+
+    // 1) Clip a circle
+    ctxPx.save();
+    ctxPx.beginPath();
+    ctxPx.arc(x, y, r, 0, Math.PI*2);
+    ctxPx.closePath();
+    ctxPx.clip();
+
+    // 2) Paint rotated texture by shifting the source x offset
+    const img = p.img;
+    if (img && img.width){
+      // We “spin” by scrolling the texture horizontally
+      const offset = Math.floor((p.angle/(Math.PI*2)) * img.width) % img.width;
+      // Draw twice to wrap seamlessly
+      const scale = (r*2) / img.height;           // scale so image height fits diameter
+      const drawW = img.width * scale;
+      const drawH = img.height * scale;
+      const left  = x - r - drawW + (offset*scale);
+      ctxPx.drawImage(img, left,        y - r, drawW, drawH);
+      ctxPx.drawImage(img, left+drawW,  y - r, drawW, drawH);
+    }
+
+    // 3a) Vignette to give spherical shading
+    const vignette = ctxPx.createRadialGradient(x, y, r*0.2, x, y, r);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(0,0,0,0.35)');
+    ctxPx.globalCompositeOperation = 'multiply';
+    ctxPx.fillStyle = vignette;
+    ctxPx.beginPath(); ctxPx.arc(x,y,r,0,Math.PI*2); ctxPx.fill();
+
+    // 3b) Directional light: bright rim on the light-facing side
+    const lx = p.lightDir[0], ly = p.lightDir[1];
+    const nx = -lx, ny = -ly; // rim opposite shadow
+    const grad = ctxPx.createLinearGradient(x - nx*r, y - ny*r, x + nx*r, y + ny*r);
+    grad.addColorStop(0,   'rgba(255,255,255,0.35)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.10)');
+    grad.addColorStop(1,   'rgba(0,0,0,0.0)');
+    ctxPx.fillStyle = grad;
+    ctxPx.globalCompositeOperation = 'screen';
+    ctxPx.beginPath(); ctxPx.arc(x,y,r,0,Math.PI*2); ctxPx.fill();
+
+    ctxPx.restore();
+    ctxPx.globalCompositeOperation = 'source-over';
+  }
+})();
+</script>
+
+  <!-- Starfield background (dense, responsive) -->
+  <script>
+  (function(){
+    const canvas = document.getElementById('bgfx'); if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    let W = canvas.width = innerWidth, H = canvas.height = innerHeight;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DPR = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = W * DPR; canvas.height = H * DPR; ctx.scale(DPR, DPR);
+
+    const STAR_COUNT = reduced ? 1500 : 23000;
+    const METEOR_RATE = reduced ? 0.006 : 0.012;
+    const GALAXY_COUNT = reduced ? 5 : 12;
+    const GRAVITY_RADIUS = 80;
+    const GRAVITY_STRENGTH = 0.02;
+
+    const mouse = { x: W * 0.5, y: H * 0.5, active: false };
+    addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; });
+    addEventListener('mouseleave', () => { mouse.active = false; });
+
+    const stars = []; const meteors = []; const galaxies = []; let iss;
+    const rand=(a,b)=>Math.random()*(b-a)+a;
+
+    function makeStar(){ const z=Math.random()*0.8+0.2;
+      return {x:Math.random()*W,y:Math.random()*H,z,size:rand(0.6,1.6)*z,vx:(Math.random()*0.3+0.05)*z,vy:(Math.random()*0.2-0.1)*z,tw:Math.random()*Math.PI*2};
+    }
+    function makeGalaxy(){ const r=rand(120,220);
+      return {x:Math.random()*W,y:Math.random()*H*0.7,r,rot:rand(0,Math.PI*2),vr:rand(-0.0004,0.0004),hue:rand(200,320),alpha:rand(0.06,0.12)};
+    }
+    function spawnMeteor(){ const top=Math.random()<0.5; const x=rand(-100,W*0.2); const y=top?rand(-60,H*0.3):rand(H*0.7,H+60); const s=rand(6,10);
+      const a=top?rand(Math.PI*0.1,Math.PI*0.3):rand(-Math.PI*0.3,-Math.PI*0.1);
+      meteors.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,birth:performance.now()});
+    }
+    function makeISS(){ return {t:0,speed:reduced?0.00003:0.00006,size:24,path:(t)=>({x:W*(0.1+0.8*((1-Math.cos(2*Math.PI*t))/2)),y:H*(0.3+0.2*Math.sin(4*Math.PI*t))})};}
+
+    for(let i=0;i<STAR_COUNT;i++) stars.push(makeStar());
+    for(let i=0;i<GALAXY_COUNT;i++) galaxies.push(makeGalaxy());
+    iss=makeISS();
+
+    function drawStar(s){ s.tw+=0.05; const tw=0.7+0.3*Math.sin(s.tw+s.z*5); ctx.globalAlpha=0.6*s.z*tw; ctx.fillStyle="#fff"; ctx.fillRect(s.x,s.y,s.size,s.size); ctx.globalAlpha=1;}
+    function drawGalaxy(g){ g.rot+=g.vr; const grad=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);
+      grad.addColorStop(0,`hsla(${g.hue},80%,70%,${g.alpha})`); grad.addColorStop(0.35,`hsla(${g.hue+40},70%,60%,${g.alpha*0.8})`); grad.addColorStop(1,`hsla(${g.hue},90%,50%,0)`);
+      ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(g.rot); ctx.globalCompositeOperation="lighter"; ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(0,0,g.r*1.2,g.r*0.7,0,0,Math.PI*2); ctx.fill(); ctx.restore(); ctx.globalCompositeOperation="source-over";
+    }
+    function drawMeteor(m){ ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(Math.atan2(m.vy,m.vx)||0);
+      const len=80; const grad=ctx.createLinearGradient(0,0,-len,0); grad.addColorStop(0,"rgba(255,255,255,0.95)"); grad.addColorStop(1,"rgba(255,180,120,0)");
+      ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-len,0); ctx.stroke(); ctx.restore(); }
+
+    let last=performance.now(); const meteorMaxAge=1200;
+    function frame(now){
+      const dt=Math.min((now-last)/1000,0.033); last=now;
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+      galaxies.forEach(drawGalaxy);
+
+      for(const s of stars){
+        s.x+=s.vx; s.y+=s.vy;
+        if(s.x>W+5) s.x=-5; if(s.y<-5) s.y=H+5; if(s.y>H+5) s.y=-5;
+        if(mouse.active){ const dx=mouse.x-s.x, dy=mouse.y-s.y, d2=dx*dx+dy*dy;
+          if(d2<GRAVITY_RADIUS*GRAVITY_RADIUS){ const d=Math.sqrt(d2)||1; s.vx+=(dx/d)*GRAVITY_STRENGTH*s.z; s.vy+=(dy/d)*GRAVITY_STRENGTH*s.z; } }
+        drawStar(s); s.vx*=0.998; s.vy*=0.998;
+      }
+
+      if(!reduced && Math.random()<METEOR_RATE) spawnMeteor();
+      for(let i=meteors.length-1;i>=0;i--){
+        const m=meteors[i]; m.x+=m.vx; m.y+=m.vy; drawMeteor(m);
+        if(now - m.birth > meteorMaxAge || m.x>W+120 || m.x<-120 || m.y<-120 || m.y>H+120) meteors.splice(i,1);
+      }
+
+      iss.t=(iss.t+iss.speed)%1;
+      const p=iss.path(iss.t); ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.sin(iss.t*Math.PI*2)*0.1);
+      ctx.fillStyle="#cfd8ff"; ctx.strokeStyle="#9fb3ff"; ctx.lineWidth=1.2;
+      ctx.fillRect(-iss.size*0.15,-iss.size*0.15,iss.size*0.3,iss.size*0.3);
+      ctx.fillStyle="#7aa6ff"; ctx.fillRect(-iss.size*0.9,-iss.size*0.12,iss.size*0.55,iss.size*0.24); ctx.fillRect(iss.size*0.35,-iss.size*0.12,iss.size*0.55,iss.size*0.24);
+      ctx.beginPath(); ctx.moveTo(-iss.size*0.35,-iss.size*0.1); ctx.lineTo(iss.size*0.35,-iss.size*0.1); ctx.moveTo(-iss.size*0.35,iss.size*0.1); ctx.lineTo(iss.size*0.35,iss.size*0.1); ctx.stroke(); ctx.restore();
+
+      if(!reduced) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    addEventListener("resize",()=>{
+      W=canvas.width=innerWidth; H=canvas.height=innerHeight;
+      canvas.width=W*DPR; canvas.height=H*DPR; ctx.setTransform(1,0,0,1,0,0); ctx.scale(DPR,DPR);
+    });
+    addEventListener("click",()=>{ if(!reduced) spawnMeteor(); });
   })();
   </script>
 </body>
