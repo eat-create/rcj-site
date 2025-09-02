@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>RCJ Admin • Inventory</title>
+<style>
+  :root{ --bg:#0b0d14; --panel:#121521; --border:#262b36; --text:#e5e7eb; --muted:#a9b1c7; --accent:#6366f1; --danger:#ef4444; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
+  a{color:#9ab;text-decoration:none}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  h1{font-size:20px;margin:12px 0}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px;margin:10px 0}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:middle}
+  th{background:#15192a}
+  input[type="number"],input[type="text"]{width:100%;background:transparent;border:1px solid var(--border);border-radius:8px;padding:.35rem;color:var(--text)}
+  input[type="checkbox"]{transform:scale(1.2)}
+  .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}
+  .btn{background:var(--accent);border:0;color:#fff;padding:.55rem .9rem;border-radius:8px;cursor:pointer}
+  .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text)}
+  .btn.danger{background:var(--danger)}
+  .muted{color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  @media (max-width: 768px){ .grid{grid-template-columns:1fr} }
+  .small{font-size:12px;color:var(--muted)}
+  .ok{color:#10b981}
+  .warn{color:#f59e0b}
+  .err{color:#ef4444}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Rocket City Jerky — Admin</h1>
+    <div><a href="/">← Back to site</a></div>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>Enter Admin PIN</label>
+        <input id="pin" type="password" placeholder="RCJ-ADMIN-1234"/>
+        <div class="small muted">Default PIN is <code>RCJ-ADMIN-1234</code>. Change in code below.</div>
+      </div>
+      <div style="align-self:end;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn secondary" id="lockBtn">Lock</button>
+        <button class="btn" id="unlockBtn">Unlock</button>
+      </div>
+    </div>
+    <div id="authState" class="small muted" style="margin-top:8px">Locked</div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div>
+        <strong>Inventory Overrides</strong>
+        <div class="small muted">These values override the live catalog in your browser. The front page reads them on load.</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="saveBtn" disabled>Save</button>
+        <button class="btn secondary" id="reloadBtn">Reload Overrides</button>
+        <button class="btn danger" id="clearBtn">Clear Overrides</button>
+      </div>
+    </div>
+
+    <table id="invTable">
+      <thead>
+        <tr>
+          <th style="width:150px">SKU</th>
+          <th>Title</th>
+          <th style="width:110px">Price ($)</th>
+          <th style="width:100px">Stock</th>
+          <th style="width:90px">Active</th>
+          <th>Image URL</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="small muted" style="margin-top:8px">
+      Tip: leave a field blank to keep the site’s default value. Mark <b>Active</b> off to hide an item (stock treated as 0).
+    </div>
+  </div>
+
+  <div class="card">
+    <strong>Status</strong>
+    <pre id="status" class="small muted" style="white-space:pre-wrap;margin:6px 0 0 0">Ready.</pre>
+  </div>
+</div>
+
+<script>
+/*** CONFIG ***/
+const PIN = "RCJ-ADMIN-1234"; // <-- change me later
+const CATALOG = [
+  { id:"sc-obp-8",  title:"Orion’s Belt — Black Pepper (8oz)" },
+  { id:"sc-hs-8",   title:"Honey Sriracha (8oz)" },
+  { id:"sc-tc-8",   title:"Teriyaki Comet (8oz)" },
+  { id:"sc-gg-12",  title:"Galactic Garlic (12oz)" },
+  { id:"gal-mh-12", title:"Mango Habanero (12oz)" },
+  { id:"gal-ao-8",  title:"Astro Original (8oz)" },
+  { id:"st-bhh-8",  title:"Black Hole Hot (8oz)" },
+  { id:"st-ij-8",   title:"Ion Jalapeño (8oz)" },
+];
+
+/*** AUTH ***/
+let unlocked = false;
+const pinEl = document.getElementById('pin');
+const authState = document.getElementById('authState');
+document.getElementById('unlockBtn').onclick = ()=>{
+  if (pinEl.value === PIN){ unlocked = true; authState.textContent = "Unlocked"; document.getElementById('saveBtn').disabled = false; setStatus("Unlocked.", "ok"); }
+  else { unlocked = false; authState.textContent = "Locked"; setStatus("Wrong PIN.", "err"); }
+};
+document.getElementById('lockBtn').onclick = ()=>{
+  unlocked = false; authState.textContent = "Locked"; document.getElementById('saveBtn').disabled = true; setStatus("Locked.", "warn");
+};
+
+/*** STORAGE ***/
+function loadOverrides(){ try{ return JSON.parse(localStorage.getItem('rcj.inventory') || '{}'); }catch{return {}} }
+function saveOverrides(data){ localStorage.setItem('rcj.inventory', JSON.stringify(data)); }
+
+/*** UI BUILD ***/
+const tbody = document.getElementById('tbody');
+function render(){
+  const o = loadOverrides();
+  tbody.innerHTML = CATALOG.map(p=>{
+    const row = o[p.id] || {};
+    const price = row.price ?? "";
+    const stock = row.stock ?? "";
+    const active = row.active !== false; // default true
+    const img = row.img ?? "";
+    return `
+      <tr data-id="${p.id}">
+        <td>${p.id}</td>
+        <td>${p.title}</td>
+        <td><input type="number" step="0.01" value="${price}" placeholder="(keep)"/></td>
+        <td><input type="number" step="1" value="${stock}" placeholder="(keep)"/></td>
+        <td style="text-align:center"><input type="checkbox" ${active?"checked":""}/></td>
+        <td><input type="text" value="${img}" placeholder="https://..."/></td>
+      </tr>
+    `;
+  }).join("");
+}
+render();
+
+/*** ACTIONS ***/
+function setStatus(msg, kind){
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = "small " + (kind==="ok"?"ok":kind==="err"?"err":"muted");
+}
+
+document.getElementById('saveBtn').onclick = ()=>{
+  if (!unlocked) { setStatus("Unlock with PIN first.", "warn"); return; }
+  const o = loadOverrides();
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const id = tr.getAttribute('data-id');
+    const [priceEl, stockEl, activeEl, imgEl] = tr.querySelectorAll('input');
+    const price = priceEl.value !== "" ? Number(priceEl.value) : undefined;
+    const stock = stockEl.value !== "" ? Number(stockEl.value) : undefined;
+    const active= activeEl.checked;
+    const img   = imgEl.value !== "" ? imgEl.value : undefined;
+
+    o[id] = o[id] || {};
+    if (price !== undefined && !Number.isNaN(price)) o[id].price = price;
+    if (stock !== undefined && Number.isInteger(stock)) o[id].stock = stock;
+    o[id].active = !!active;
+    if (img !== undefined) o[id].img = img;
+  });
+  saveOverrides(o);
+  setStatus("Saved overrides. Refresh the main site to see changes.", "ok");
+};
+
+document.getElementById('reloadBtn').onclick = ()=>{
+  render();
+  setStatus("Reloaded overrides from browser storage.", "muted");
+};
+
+document.getElementById('clearBtn').onclick = ()=>{
+  if (!confirm("Clear all overrides from this browser?")) return;
+  localStorage.removeItem('rcj.inventory');
+  render();
+  setStatus("Cleared overrides.", "ok");
+};
+</script>
+</body>
+</html>
