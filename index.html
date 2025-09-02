@@ -748,8 +748,8 @@ if (p.x < -off || p.x > viewW + off) {
     const STAR_COUNT = reduced ? 1500 : 23000;
     const METEOR_RATE = reduced ? 0.006 : 0.012;
     const GALAXY_COUNT = reduced ? 5 : 12;
-    const GRAVITY_RADIUS = 140;
-    const GRAVITY_STRENGTH = 0.04;
+    const GRAVITY_RADIUS = 80;
+    const GRAVITY_STRENGTH = 0.02;
 
     const mouse = { x: W * 0.5, y: H * 0.5, active: false };
     addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; });
