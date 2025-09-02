@@ -745,9 +745,9 @@ if (p.x < -off || p.x > viewW + off) {
     const DPR = Math.min(devicePixelRatio || 1, 2);
     canvas.width = W * DPR; canvas.height = H * DPR; ctx.scale(DPR, DPR);
 
-    const STAR_COUNT = reduced ? 200 : 800;
-    const METEOR_RATE = reduced ? 0.0006 : 0.0012;
-    const GALAXY_COUNT = reduced ? 2 : 4;
+    const STAR_COUNT = reduced ? 500 : 1300;
+    const METEOR_RATE = reduced ? 0.006 : 0.012;
+    const GALAXY_COUNT = reduced ? 5 : 12;
     const GRAVITY_RADIUS = 140;
     const GRAVITY_STRENGTH = 0.04;
 
