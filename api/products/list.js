@@ -1,9 +1,7 @@
-// /api/products/list.js
 import { adminClient } from '../_db.js';
 
 export default async function handler(req, res) {
   try {
-    // Sanity check env at runtime
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.error('Missing env', {
         hasUrl: !!process.env.SUPABASE_URL,
